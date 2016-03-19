@@ -48,34 +48,34 @@
 	
 3. 使用方法
 
-	// 如果想将MD ==> HTML
-	var html = markdown.toHTML();
-	$(ele).html(html);
-	// 也可以传入MD文本 不过创建的时候的文本将会被覆盖
-	html = markdown.toHTML(markdownText);
-	
-	// 如果想讲MD ==> JsonML
-	// 默认使用创建对象传入的MD文本
-	var tree = markdown.toTree();
-	// 同样可以传入文本
-	tree = markdown.toTree(markdownText);
+    // 如果想将MD ==> HTML
+    var html = markdown.toHTML();
+    $(ele).html(html);
+    // 也可以传入MD文本 不过创建的时候的文本将会被覆盖
+    html = markdown.toHTML(markdownText);
+    
+    // 如果想讲MD ==> JsonML
+    // 默认使用创建对象传入的MD文本
+    var tree = markdown.toTree();
+    // 同样可以传入文本
+    tree = markdown.toTree(markdownText);
 	
 
 4. 运行时状态
 
-	// 修改此次运行时候的运行参数
-	// 并不影响下次运行
-	var options = {
-		dialect			= 'Complex';
-		is_debug		= true;
-		debug_indent	= '';
-		deleteSource	= true;
-		deleteTree		= true;
-		deleteHTML		= true;
-		root			= "";
-		rootAttr		= {};
-		deleteH1		= true;
-	};
+    // 修改此次运行时候的运行参数
+    // 并不影响下次运行
+    var options = {
+        dialect			= 'Complex';
+        is_debug		= true;
+        debug_indent	= '';
+        deleteSource	= true;
+        deleteTree		= true;
+        deleteHTML		= true;
+        root			= "";
+        rootAttr		= {};
+        deleteH1		= true;
+    };
 	
 	html = markdown.toHTML(markdownText,options);
 	html = markdown.toHTML(options);
