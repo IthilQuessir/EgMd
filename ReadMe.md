@@ -31,7 +31,6 @@
 
 2. 创建对象
 
-```javascript
 	var markdownText = "###Markdown-Header\n\n* Line_1\n* Line_2";
 	var markdown = new Markdown(markdownText);
 	// 可以传入配置信息 否则使用默认配置
@@ -46,11 +45,9 @@
 		this.rootAttr		= {};	// 根节点属性
 		this.deleteH1		= true;	// 删除H1 (仍然会记录到 this.Header.H1)
 	});
-```
-
+	
 3. 使用方法
 
-```javascript
     // 如果想将MD ==> HTML
     var html = markdown.toHTML();
     $(ele).html(html);
@@ -62,11 +59,10 @@
     var tree = markdown.toTree();
     // 同样可以传入文本
     tree = markdown.toTree(markdownText);
-```	
+	
 
 4. 运行时状态
-
-```javascript
+    
     // 修改此次运行时候的运行参数
     // 并不影响下次运行
     var options = {
@@ -85,7 +81,7 @@
 	html = markdown.toHTML(options);
 	tree = markdown.toTree(options);
 	tree = markdown.toTree(markdownText,options);
-```
+
 
 5. Event
 
@@ -98,7 +94,6 @@ Markdown.prototype.off( eventName )     解绑事件
 `Markdown.prototype.on( eventName [, data ] , fun(     html   ,  data  ) )`
 -------------------------事件名-----额外参数---回调函数--html文本---额外参数
 
-```javascript
 	function updateHTML(html){
 		$(ele).html(html);
 	}
@@ -112,7 +107,7 @@ Markdown.prototype.off( eventName )     解绑事件
 	
 	markdown.on('gogogo',last_data,myFun);
 	markdown.trigger('gogogo',[first_data,second_data]);
-```	
+	
 
 
 
