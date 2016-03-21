@@ -66,26 +66,26 @@
 
 4. 运行时状态
 
-```javascript
-    // 修改此次运行时候的运行参数
-    // 并不影响下次运行
-    var options = {
-        dialect			= 'Complex';
-        is_debug		= true;
-        debug_indent	= '';
-        deleteSource	= true;
-        deleteTree		= true;
-        deleteHTML		= true;
-        root			= "";
-        rootAttr		= {};
-        deleteH1		= true;
-    };
+    ```javascript
+        // 修改此次运行时候的运行参数
+        // 并不影响下次运行
+        var options = {
+            dialect			= 'Complex';
+            is_debug		= true;
+            debug_indent	= '';
+            deleteSource	= true;
+            deleteTree		= true;
+            deleteHTML		= true;
+            root			= "";
+            rootAttr		= {};
+            deleteH1		= true;
+        };
 	
-	html = markdown.toHTML(markdownText,options);
-	html = markdown.toHTML(options);
-	tree = markdown.toTree(options);
-	tree = markdown.toTree(markdownText,options);
-```
+    	html = markdown.toHTML(markdownText,options);
+    	html = markdown.toHTML(options);
+    	tree = markdown.toTree(options);
+    	tree = markdown.toTree(markdownText,options);
+    ```
 
 5. Event
 
