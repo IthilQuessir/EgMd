@@ -1,30 +1,16 @@
 // ==============================================================================================
 // =                                        Markdown.js                                         =
 // =                                                                                            =
-// = @author   IthilQuessir                                                                     =
+// = @author   IthilQuessir | echosoar:http://iwenku.net                                                                  =
 // = @email    itimecracker@gmail.com                                                           =
 // = @version  2.0.0                                                                            =
 // = @time     2016-03-09                                                                       =
 // = @descript Translate markdown grammar into HTML5 label                                      =
 // ==============================================================================================
 
-(function(){
-	
-	
-	/** Config
-	 * 
-	 * @description 默认配置
-	 */
-	function Config(){
-		this.dialect		= 'Complex';	// 默认渲染引擎
-		this.is_debug		= true;
-		this.debug_indent	= '';
-		this.deleteSource	= true;	// 删除源文本
-		this.deleteTree		= true;	// 删除中间转换产生的JsonML树
-		this.deleteHTML		= true;	// 删除转换的html结果
-		this.root			= "";	// 根节点
-		this.rootAttr		= {};	// 根节点属性
-		this.deleteH1		= true;	// 删除H1 (仍然会记录到 this.Header.H1)
+(function(obj,undefined){
+	if(obj.Markdown!=null){
+		return;
 	}
 	
 	/** Markdown.prototype.buildOptions( options )
@@ -201,8 +187,8 @@
 			throw new Error('Markdown Expect Stirng param');
 		
 		// 初始化配置
-		Config.call( this );
-		
+		//Config.call( this );
+		/*
 		if( arguments[1] ) {
 			var arg = arguments[1];
 			if( typeof arg === 'function' )
@@ -210,6 +196,18 @@
 			else
 				this.dialect = arg;
 		}
+		*/
+		var temOption=arguments[1]||{};
+		
+		this.dialect		= temOption.dialect||'Complex';	// 默认渲染引擎
+		this.is_debug		= temOption.is_debug||true;
+		this.debug_indent	= temOption.debug_indent||'';
+		this.deleteSource	= temOption.deleteSource||true;	// 删除源文本
+		this.deleteTree		= temOption.deleteTree||true;	// 删除中间转换产生的JsonML树
+		this.deleteHTML		= temOption.deleteHTML||true;	// 删除转换的html结果
+		this.root			= temOption.root||"";	// 根节点
+		this.rootAttr		= temOption.rootAttr||{};	// 根节点属性
+		this.deleteH1		= temOption.deleteH1||true;	// 删除H1 (仍然会记录到 this.Header.H1)
 		
 		public_attr.call(this);
 		this.source = source;
@@ -1987,5 +1985,5 @@
 	Markdown.addDialect( Complex );
 	
 	
-	window.Markdown = Markdown;
-}());
+	obj.Markdown = Markdown;
+}(this));
