@@ -34,16 +34,16 @@
 var markdownText = "###Markdown-Header\n\n* Line_1\n* Line_2";
 var markdown = new Markdown(markdownText);
 // 可以传入配置信息 否则使用默认配置
-markdown = new Markdown("",function(){
-    this.dialect		= 'Complex';	// 默认渲染引擎
-    this.is_debug		= true;
-    this.debug_indent	= '';
-    this.deleteSource	= true;	// 删除源文本
-    this.deleteTree		= true;	// 删除中间转换产生的JsonML树
-    this.deleteHTML		= true;	// 删除转换的html结果
-    this.root			= "";	// 根节点
-    this.rootAttr		= {};	// 根节点属性
-    this.deleteH1		= true;	// 删除H1 (仍然会记录到 this.Header.H1)
+markdown = new Markdown("",{
+    dialect		    : 'Complex',	// 默认渲染引擎
+    is_debug		: true,
+    debug_indent	: '',
+    deleteSource	: true,			// 删除源文本
+    deleteTree		: true,			// 删除中间转换产生的JsonML树
+    deleteHTML		: true,			// 删除转换的html结果
+    root			: "",			// 根节点
+    rootAttr		: {},			// 根节点属性
+    deleteH1		: true			// 删除H1 (仍然会记录到 this.Header.H1)
 });
 ```
 

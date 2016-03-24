@@ -3,17 +3,19 @@
 // =                                                                                            =
 // = @author   IthilQuessir                                                                     =
 // = @email    itimecracker@gmail.com                                                           =
-// = @version  2.0.0                                                                            =
-// = @time     2016-03-09                                                                       =
+// = @contributor echosoar:http://iwenku.net                                                    =
+// =                                                                                            =
+// = @version  1.0.2                                                                            =
+// = @time     2016-03-24                                                                       =
 // = @descript Translate markdown grammar into HTML5 label                                      =
 // ==============================================================================================
+
 
 (function( global , undefined ){
 	
 	if( !global.Markdown ) {
 		throw new Error("Markdown已存在");
 	}
-	
 	
 	/** Config
 	 * 
@@ -30,6 +32,7 @@
 		this.rootAttr		= {};	// 根节点属性
 		this.deleteH1		= true;	// 删除H1 (仍然会记录到 this.Header.H1)
 	}
+	
 	
 	/** Markdown.prototype.buildOptions( options )
 	 * 
@@ -184,14 +187,13 @@
 	//================================================================================================================
 	
 	
-	/** Markdown( [source [, dialect/config ]] )
+	/** Markdown( [source [, config ])
 	 * 
 	 * @description Markdown主程序
 	 *              调用toHTML触发     toHTML事件
 	 *              调用toHtmlTree触发 toHtmlTree事件
 	 * 
 	 * @param source  String        源文本
-	 * @param dialect String/Object 翻译引擎
 	 * @param config  Function      配置初始化选项
 	 * 
 	 * 
@@ -207,12 +209,16 @@
 		// 初始化配置
 		Config.call( this );
 		
+		// 传入的配置属性
 		if( arguments[1] ) {
-			var arg = arguments[1];
-			if( typeof arg === 'function' )
-				arg.call(this);
-			else
-				this.dialect = arg;
+			var config = arguments;
+			
+			// 复制配置属性
+			for( var key in config ) {
+				if( config.hasOwnProperty(key) ) {
+					this[key] = config[key];
+				}
+			}
 		}
 		
 		public_attr.call(this);
@@ -223,6 +229,31 @@
 			all: []
 		};
 	}
+	
+	Markdown.version = "1.0.2";		// 版本号
+	
+	
+	/** public_attr()
+	 * 
+	 * @description Markdown的公共属性---翻译后可供访问但是翻译前无法访问的属性
+	 *              Reset的时候这些属性会被清空
+	 */
+	function public_attr() {
+		this.em_state = [];		// 行内em匹配栈
+		this.strong_state = [];	// 行内strong匹配栈
+		
+		this.references = {};	// 变量表
+		
+		this.tree = null;
+		this.Header = [];		// toHTML 列表内容是字符串  |  toHTMLTree 类别内容是JsonML
+								// H1 list  this.Header[1]
+								// H2 list  this.Header[2]
+		
+		this.html = "";			// 翻译结果 toHTML()后被设置
+	}
+	
+	Markdown.dialects = {};
+
 	
 	/** on( event [, data ], fun)
 	 * 
@@ -342,28 +373,6 @@
 			throw new TypeError("Markdown.unbind Unexpect param");
 		}
 	};
-	
-	
-	/** public_attr()
-	 * 
-	 * @description Markdown的公共属性---翻译后可供访问但是翻译前无法访问的属性
-	 *              Reset的时候这些属性会被清空
-	 */
-	function public_attr() {
-		this.em_state = [];		// 行内em匹配栈
-		this.strong_state = [];	// 行内strong匹配栈
-		
-		this.references = {};	// 变量表
-		
-		this.tree = null;
-		this.Header = [];		// toHTML 列表内容是字符串  |  toHTMLTree 类别内容是JsonML
-								// H1 list  this.Header[1]
-								// H2 list  this.Header[2]
-		
-		this.html = "";			// 翻译结果 toHTML()后被设置
-	}
-	
-	Markdown.dialects = {};
 	
 	/** debug( [ arguments ] )
 	 * 
@@ -1990,6 +1999,5 @@
 	Markdown.buildInlineRegExp( Complex.inline );
 	Markdown.addDialect( Complex );
 	
-	
 	global.Markdown = Markdown;
-}());
+}(this));
