@@ -8,7 +8,11 @@
 // = @descript Translate markdown grammar into HTML5 label                                      =
 // ==============================================================================================
 
-(function(){
+(function( global , undefined ){
+	
+	if( !global.Markdown ) {
+		throw new Error("Markdown已存在");
+	}
 	
 	
 	/** Config
@@ -1987,5 +1991,5 @@
 	Markdown.addDialect( Complex );
 	
 	
-	window.Markdown = Markdown;
+	global.Markdown = Markdown;
 }());

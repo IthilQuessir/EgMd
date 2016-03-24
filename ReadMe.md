@@ -2,8 +2,7 @@
 
 > author IthilQuessir
 > email  itimecracker@gmail.com
-
-*如有BUG感谢通过EMAIL交流*
+> *如有BUG感谢通过EMAIL交流*
 
 ####支持的语法
 
@@ -27,9 +26,9 @@
 
 #### 用法
 
-1. 引入EgMd.js文件
+＊ 引入EgMd.js文件
 
-2. 创建对象
+＊ 创建对象
 
 ```javascript
 var markdownText = "###Markdown-Header\n\n* Line_1\n* Line_2";
@@ -48,7 +47,7 @@ markdown = new Markdown("",function(){
 });
 ```
 
-3. 使用方法
+＊ 使用方法
 
 ```javascript
 // 如果想将MD ==> HTML
@@ -64,7 +63,7 @@ var tree = markdown.toTree();
 tree = markdown.toTree(markdownText);
 ```	
 
-4. 运行时状态
+＊ 运行时状态
 
 ```javascript
 // 修改此次运行时候的运行参数
@@ -87,7 +86,7 @@ tree = markdown.toTree(options);
 tree = markdown.toTree(markdownText,options);
 ```
 
-5. Event
+＊ Event
 
 Markdown支持toHTML和toTREE两个默认事件
 toHTML在调用toHTML()的时候触发
