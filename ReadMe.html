@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+</head>
+<body>
+<h1 id="elegantmarkdown1.0.0">Elegant Markdown 1.0.0</h1>
+
+<blockquote>
+<p>author IthilQuessir
+email itimecracker@gmail.com
+<em>如有BUG感谢通过EMAIL交流</em></p>
+</blockquote>
+
+<h4 id="支持的语法">支持的语法</h4>
+
+<ul>
+<li>block
+
+<ul>
+<li>以#开头的标题</li>
+<li>以-=为下划线的标题</li>
+<li>ul/ol</li>
+<li>blockquote</li>
+<li>code</li>
+<li>hr</li>
+<li>变量定义url</li>
+<li>table</li>
+<li>p</li>
+</ul></li>
+<li>inline
+
+<ul>
+<li>\[]`*_-{}<a href=""></a>#+.! 转义</li>
+<li>image</li>
+<li>links</li>
+<li>autoLink</li>
+<li>inlineCode</li>
+<li>br</li>
+</ul></li>
+</ul>
+
+<h4 id="用法">用法</h4>
+
+<ul>
+<li><p>引入EgMd.js文件</p></li>
+<li><p>创建对象</p></li>
+</ul>
+
+<pre><code class="javascript">var markdownText = &quot;###Markdown-Header\n\n* Line_1\n* Line_2&quot;;
+var markdown = new Markdown(markdownText);
+// 可以传入配置信息 否则使用默认配置
+markdown = new Markdown(&quot;&quot;,{
+    dialect         : 'Complex',    // 默认渲染引擎
+    is_debug        : true,
+    debug_indent    : '',
+    deleteSource    : true,         // 删除源文本
+    deleteTree      : true,         // 删除中间转换产生的JsonML树
+    deleteHTML      : true,         // 删除转换的html结果
+    root            : &quot;&quot;,           // 根节点
+    rootAttr        : {},           // 根节点属性
+    deleteH1        : true          // 删除H1 (仍然会记录到 this.Header.H1)
+});
+</code></pre>
+
+<ul>
+<li>使用方法</li>
+</ul>
+
+<pre><code class="javascript">// 如果想将MD ==&gt; HTML
+var html = markdown.toHTML();
+$(ele).html(html);
+// 也可以传入MD文本 不过创建的时候的文本将会被覆盖
+html = markdown.toHTML(markdownText);
+
+// 如果想讲MD ==&gt; JsonML
+// 默认使用创建对象传入的MD文本
+var tree = markdown.toTree();
+// 同样可以传入文本
+tree = markdown.toTree(markdownText);
+</code></pre>
+
+<ul>
+<li>运行时状态</li>
+</ul>
+
+<pre><code class="javascript">// 修改此次运行时候的运行参数
+// 并不影响下次运行
+var options = {
+    dialect         = 'Complex';
+    is_debug        = true;
+    debug_indent    = '';
+    deleteSource    = true;
+    deleteTree      = true;
+    deleteHTML      = true;
+    root            = &quot;&quot;;
+    rootAttr        = {};
+    deleteH1        = true;
+};
+
+html = markdown.toHTML(markdownText,options);
+html = markdown.toHTML(options);
+tree = markdown.toTree(options);
+tree = markdown.toTree(markdownText,options);
+</code></pre>
+
+<ul>
+<li>Event</li>
+</ul>
+
+<p>Markdown支持toHTML和toTREE两个默认事件
+toHTML在调用toHTML()的时候触发
+toTree在调用toTree()的时候触发</p>
+
+<p>Markdown.prototype.trigger( eventName [, data ]) 主动触发事件
+Markdown.prototype.off( eventName ) 解绑事件
+<code>Markdown.prototype.on( eventName [, data ] , fun(     html   ,  data  ) )</code>
+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;-事件名&#8212;&#8211;额外参数&#8212;回调函数&#8211;html文本&#8212;额外参数</p>
+
+<pre><code class="javascript">function updateHTML(html){
+    $(ele).html(html);
+}
+
+markdown.on('toHTML', updateHTML);
+markdown.off('toHTML');
+
+// 也可以绑定其他事件并触发
+function myFun( first_data , second_data , last_data ){
+}
+
+markdown.on('gogogo',last_data,myFun);
+markdown.trigger('gogogo',[first_data,second_data]);
+</code></pre>
+
+<ul>
+<li>获取标题列表</li>
+</ul>
+
+<pre><code class="javascript">var html   = markdown.toHTML(markdownText);
+var hgroup = markdown.Header; // 获取上一次解析的文档的标题列表
+var h1_grp = hgroup[1];  // 不存在返回 undefined
+var h2_grp = hgroup[2];  
+// ...
+// ...
+var h6_grp = hgroup[6];
+</code></pre>
+
+<blockquote>
+<p>copyright © www.ithilquessir.com</p>
+</blockquote>
+
+</body>
+</html>

@@ -26,9 +26,9 @@
 
 #### 用法
 
-＊ 引入EgMd.js文件
+* 引入EgMd.js文件
 
-＊ 创建对象
+* 创建对象
 
 ```javascript
 var markdownText = "###Markdown-Header\n\n* Line_1\n* Line_2";
@@ -47,7 +47,7 @@ markdown = new Markdown("",{
 });
 ```
 
-＊ 使用方法
+* 使用方法
 
 ```javascript
 // 如果想将MD ==> HTML
@@ -63,7 +63,7 @@ var tree = markdown.toTree();
 tree = markdown.toTree(markdownText);
 ```	
 
-＊ 运行时状态
+* 运行时状态
 
 ```javascript
 // 修改此次运行时候的运行参数
@@ -86,7 +86,7 @@ tree = markdown.toTree(options);
 tree = markdown.toTree(markdownText,options);
 ```
 
-＊ Event
+* Event
 
 Markdown支持toHTML和toTREE两个默认事件
 toHTML在调用toHTML()的时候触发
