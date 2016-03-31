@@ -114,5 +114,16 @@ markdown.trigger('gogogo',[first_data,second_data]);
 ```	
 
 
+* 获取标题列表
+
+```javascript
+var html   = markdown.toHTML(markdownText);
+var hgroup = markdown.Header; // 获取上一次解析的文档的标题列表
+var h1_grp = hgroup[1];  // 不存在返回 undefined
+var h2_grp = hgroup[2];  
+// ...
+// ...
+var h6_grp = hgroup[6];
+```
 
 > copyright © www.ithilquessir.com
