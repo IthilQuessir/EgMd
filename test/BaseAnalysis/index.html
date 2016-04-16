@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+			<meta name="format-detection" content="telephone=no">
+			<meta content="email=no" name="format-detection">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+			<title>EgMd Base Test</title>
+			<!-- CSS -->
+			
+			<!-- JavsScript -->
+			<script src="../../scripts/min/EgMd-1.0.3-min.js" type="text/javascript" charset="utf-8"></script>
+			
+		</head>
+		<body>
+			<div id="res"></div>
+			<textarea name="md" id="md" style="display: none;">
+# EgMd 测试文档
+
+### 多级列表－最多三级
+
+* 条目一
+* 条目二
+	* 子条目一
+	* 子条目二
+* 条目三
+
+
+---
+
+### inline
+
+添加链接[LINK]("ithilquessir.com")
+
+*斜体*  
+_斜体_  
+**粗体**  
+__粗体__  
+
+
+---
+
+### 表格
+
+| 第一列 | 第二列 | 第三列 |
+|:------|:-----:|------:|
+| 左对齐 |  居中  | 右对齐 |
+
+---
+
+### Blockquote
+
+> blockquote
+> # h1 of blockquote
+>> blockquote of blockquote
+> * list of blockquote
+> * list of blockquote
+
+---
+
+### Code Block
+
+	/** This is code block
+	 */
+	function(code) {
+		return code;
+	}
+</textarea>
+		</body>
+		<script src="index.js" type="text/javascript" charset="utf-8"></script>
+	</html>
