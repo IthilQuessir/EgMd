@@ -4,14 +4,14 @@
 	 */
 	function Config(){
 		this.dialect		= 'Complex';	// 默认渲染引擎
-		this.is_debug		= true;
+		this.is_debug		= false;
 		this.debug_indent	= '';
 		this.deleteSource	= true;	// 删除源文本
 		this.deleteTree		= true;	// 删除中间转换产生的JsonML树
 		this.deleteHTML		= true;	// 删除转换的html结果
 		this.root			= "";	// 根节点
 		this.rootAttr		= {};	// 根节点属性
-		this.deleteH1		= true;	// 删除H1 (仍然会记录到 this.Header.H1)
+		this.deleteH1		= false;	// 删除H1 (仍然会记录到 this.Header.H1)
 	}
 	
 	

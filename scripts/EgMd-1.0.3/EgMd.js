@@ -4,7 +4,7 @@
 // @codekit-append "Dialects/Complex.js";
 // @codekit-append "after.js";
 
-if (!global.Markdown) {
+if (global.Markdown) {
 	throw new Error("Markdown已存在");
 }
 
@@ -53,15 +53,20 @@ function buildOptions(options) {
 function Markdown(source) {
 
 	source = source || "";
-	if (typeof source !== 'string' && typeof source !== 'undefined')
+	var config = null;
+	
+	if( typeof source === "object" ) {
+		config = source;
+	}
+	else if (typeof source !== 'string' && typeof source !== 'undefined') {
 		throw new Error('Markdown Expect Stirng param');
+	}
 
 	// 初始化配置
 	Config.call(this);
 
 	// 传入的配置属性
-	if (arguments[1]) {
-		var config = arguments;
+	if (config) {
 
 		// 复制配置属性
 		for (var key in config) {

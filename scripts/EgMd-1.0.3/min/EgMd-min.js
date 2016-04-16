@@ -6,14 +6,14 @@
 	 */
 	function Config(){
 		this.dialect		= 'Complex';	// 默认渲染引擎
-		this.is_debug		= true;
+		this.is_debug		= false;
 		this.debug_indent	= '';
 		this.deleteSource	= true;	// 删除源文本
 		this.deleteTree		= true;	// 删除中间转换产生的JsonML树
 		this.deleteHTML		= true;	// 删除转换的html结果
 		this.root			= "";	// 根节点
 		this.rootAttr		= {};	// 根节点属性
-		this.deleteH1		= true;	// 删除H1 (仍然会记录到 this.Header.H1)
+		this.deleteH1		= false;	// 删除H1 (仍然会记录到 this.Header.H1)
 	}
 	
 	
@@ -173,7 +173,7 @@ var argToArray = MarkdownHelpers.argToArray = function(arg) {
 // @codekit-append "Dialects/Complex.js";
 // @codekit-append "after.js";
 
-if (!global.Markdown) {
+if (global.Markdown) {
 	throw new Error("Markdown已存在");
 }
 
@@ -222,15 +222,20 @@ function buildOptions(options) {
 function Markdown(source) {
 
 	source = source || "";
-	if (typeof source !== 'string' && typeof source !== 'undefined')
+	var config = null;
+	
+	if( typeof source === "object" ) {
+		config = source;
+	}
+	else if (typeof source !== 'string' && typeof source !== 'undefined') {
 		throw new Error('Markdown Expect Stirng param');
+	}
 
 	// 初始化配置
 	Config.call(this);
 
 	// 传入的配置属性
-	if (arguments[1]) {
-		var config = arguments;
+	if (config) {
 
 		// 复制配置属性
 		for (var key in config) {
