@@ -1,6 +1,6 @@
 # Md.js
 
-> author IthilQuessir
+> author IthilQuessir  
 > email  itimecracker@gmail.com
 
 ## 用法简述
