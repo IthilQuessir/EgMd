@@ -1,0 +1,1 @@
+function Block(){this.expendGrammars=[]}Block.prototype.parse=function(r){for(var e=-1,n=this.expendGrammars.length,t=null;++e<n&&(t=grammar.parse(r),null===t););return t},Block.prototype.expend=function(r){this.expendGrammars.push(r)};

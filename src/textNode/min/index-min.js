@@ -1,0 +1,1 @@
+var TextNode=function(){"use strict";function t(t){this.text=t}return t.prototype.toHtml=function(){return document.creatTextNode(this.text)},t}();

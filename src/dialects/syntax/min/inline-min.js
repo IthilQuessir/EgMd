@@ -1,0 +1,1 @@
+function Inline(){this.expendGrammars=[],this.pattern=null}Inline.prototype.check=function(n){},Inline.prototype.resetCheckPattern=function(){},Inline.prototype.parse=function(n){return new textNode(n)},Inline.prototype.expend=function(n){this.expendGrammars.push(n)};
