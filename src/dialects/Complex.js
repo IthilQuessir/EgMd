@@ -1,62 +1,66 @@
-// ===========================
-	// =     Complex语法分析引擎   =
 	// ===========================
-	
+	// =     Complex语法分析引擎   
+	// =
+	// = 这是v 1.0.0 版本的遗留文件
+	// = 用于以后扩充语法参考
+	// = 将在之后版本中删除
+	// ===========================
+
 	var Complex = {
 		name: "Complex",
 		block: {
-			
+
 			// H1 ~ H6	|### STR
 			atxHeader: function atxHeader( block, next ) {
 				var m = block.match( /^(#{1,6})\s*(.*?)\s*#*\s*(?:\n|$)/ );
-				
+
 				if ( !m )
 					return undefined;
-				
+
 				var header = [ "header", { level: m[ 1 ].length } ];
 				Array.prototype.push.apply(header, this.processInline(m[ 2 ]));
-				
-				if ( m[0].length < block.length )
-					next.unshift( mkBlock( block.substr( m[0].length ), block.trailing, block.lineNum + 2 ) );
-								
-				return [ header ];
-			},
-			
-			// H1 ~ H6	|STR
-			//			|======
-			setextHeader: function setextHeader( block, next ) {
-				var m = block.match( /^(.*)\n([-=])\2\2+(?:\n|$)/ );
-				
-				if ( !m )
-					return undefined;
-				
-				var level  = ( m[ 2 ] === "=" ) ? 1 : 2;
-				var header = [ "header", { level : level } ];
-				Array.prototype.push.apply(header, this.processInline(m[ 1 ]));
-				
+
 				if ( m[0].length < block.length )
 					next.unshift( mkBlock( block.substr( m[0].length ), block.trailing, block.lineNum + 2 ) );
 
 				return [ header ];
 			},
-			
+
+			// H1 ~ H6	|STR
+			//			|======
+			setextHeader: function setextHeader( block, next ) {
+				var m = block.match( /^(.*)\n([-=])\2\2+(?:\n|$)/ );
+
+				if ( !m )
+					return undefined;
+
+				var level  = ( m[ 2 ] === "=" ) ? 1 : 2;
+				var header = [ "header", { level : level } ];
+				Array.prototype.push.apply(header, this.processInline(m[ 1 ]));
+
+				if ( m[0].length < block.length )
+					next.unshift( mkBlock( block.substr( m[0].length ), block.trailing, block.lineNum + 2 ) );
+
+				return [ header ];
+			},
+
 			// pre	   |	[CODE TYPE] [LINE NUM]
 			//		   |    STR
 			//		   |	STR
 			// * 自动合并相邻的Code Block 除非有不同的CODE TYPE
 			code: function code( block, next ) {
-				
+
 				var ret = [];
 				var re = /^(?: {0,3}\t| {4})(.*)\n?/;
-				
-				//	代码属性							 code stype		line num		
+
+				//	代码属性							 code stype		line num
 				var codeType = /^(?: {0,3}\t| {4})\s*\[(.*?)\](?:\s*\[(.*?)\])?[ \t]*\n?/;
 				var attr = null;
-				
+
 				function getAttr( block ){
 					var b = block.valueOf();
 					var m = null;
-					
+
 					if ( !!( m = b.match( codeType )) )
 					{
 						b = b.substr( m[0].length );
@@ -64,18 +68,18 @@
 						attr.codeType   = m[1] ? m[1] : 'cpp';
 						attr.lineNumber = m[2] ? m[2] : null;
 					}
-					
+
 					return b;
 				}
 				function pushRet( m ){
 					ret.push( m[1] );
 				}
-				
+
 				if ( !block.match( re ) )
 					return undefined;
-				
+
 				var b = getAttr( block );
-				
+
 				block_search:
 				do {
 					// 安行分组
@@ -93,31 +97,31 @@
 
 						// 两个code block的间隔
 						ret.push ( block.trail.replace(/[^\n]/g, "").substring(2) );
-						
+
 						b = next.shift().valueOf();
 					}
 					else {
 						break block_search;
 					}
 				} while ( true );
-				
-				
+
+
 				var code_block = [ "code_block" ];
 				if( attr )
 					code_block.push( attr );
 				code_block.push( ret.join("\n") );
-				
+
 				return [ code_block ];
 			},
-			
+
 			// hr		:	*********
 			horizRule: function horizRule( block, next ) {
 				// 查找block中的hr标记
 				var m = block.match( /^(?:([\s\S]*?)\n)?[ \t]*([-_*])(?:[ \t]*\2){2,}[ \t]*(?:\n([\s\S]*))?$/ );
-				
+
 				if ( !m )
 					return undefined;
-				
+
 				var classes = '';
 				// 给hr添加class标签
 				switch( m[2] )
@@ -145,16 +149,16 @@
 				// hr之后的block
 				if ( m[ 3 ] )
 					next.unshift( mkBlock( m[ 3 ], block.trailing, block.lineNum + 1 ) );
-				
+
 				return jsonml;
 			},
-			
+
 			// ul		:	*  STR
 			// ol		:	1. STR
 			lists: (function() {
 				var any_list = "[*+-]|\\d+(?:\\.)",
 				bullet_list = /[*+-]/,
-				
+
 				is_list_re = new RegExp( "^( {0,3})(" + any_list + ")[ \t]+" ),
 				indent_re = "(?: {0,3}\\t| {4})";
 
@@ -169,7 +173,7 @@
 				function expand_tab( input ) {
 					return input.replace( / {0,3}\t/g, "    " );
 				}
-				
+
 				// Add inline content `inline` to `li`. inline comes from processInline
 				// so is an array of content
 				function add(li, loose, inline, nl) {
@@ -221,22 +225,22 @@
 
 				// passed to stack.forEach to turn list items up the stack into paras
 				function paragraphify(s, i, stack) {
-					
+
 					var list = s.list;
 					var last_li = list[list.length-1];
-					
-					
+
+
 					if ( last_li[1] instanceof Array && last_li[1][0] === "para" )
 						return;
 					if ( i + 1 === stack.length ) {
 						// 列表最后一项
 						// 将内容字符串替换为para
 						// 避免想attr写入para
-						
+
 						i = 1;
 						if( last_li instanceof Object )
 							i = 2;
-						
+
 						last_li.push( ["para"].concat( last_li.splice(i, last_li.length - 1) ) );
 					}
 					else {
@@ -250,21 +254,21 @@
 					var m = block.match( is_list_re );
 					if ( !m )
 						return undefined;
-					
+
 					function make_list( m ) {
 						var list = bullet_list.exec( m[2] )
 						? ["bulletlist"]
 						: ["numberlist"];
-						
+
 						// list.push({"class":m[2]});
 
 						stack.push( { list: list, indent: m[1] } );
 						return list;
 					}
-					
+
 					function make_li( header ){
 						var li = ["listitem"];
-						
+
 						switch( header )
 						{
 						case "+":
@@ -279,9 +283,9 @@
 						default:
 							header = header.replace(/\.$/g,"");
 						}
-						
+
 						li.push( { "class" : header } );
-						
+
 						return li;
 					}
 
@@ -295,18 +299,18 @@
 					li_accumulate = "",
 					nl = "",
 					lines;
-					
-					
+
+
 					function getNL(n){
 						nl = n; return "";
 					}
-					
+
 					// 将block按行分开，循环查找li
 					loose_search:
 					while ( true ) {
 						// 分行
 						lines = block.split( /(?=\n)/ );
-												
+
 						// 对每一个li进行processInline()
 						li_accumulate = "";
 						nl = "";
@@ -316,10 +320,10 @@
 						for ( var line_no = 0; line_no < lines.length; line_no++ ) {
 							nl = "";
 							var l = lines[line_no].replace(/^\n/, getNL );
-							
+
 							var line_re = regex_for_depth( stack.length );
 							m = l.match( line_re );
-							
+
 							// 存在一个li
 							if ( m[1] !== undefined ) {
 								// 应该先对之前的li进行processInline并添加
@@ -329,10 +333,10 @@
 									loose = false;
 									li_accumulate = "";
 								}
-								
+
 								m[1] = expand_tab( m[1] );
 								var wanted_depth = Math.floor(m[1].length/4)+1;
-								
+
 								if ( wanted_depth > stack.length ) {
 									// Deep enough for a nested list outright
 									//print ( "new nested list" );
@@ -345,7 +349,7 @@
 									for ( i = 0; i < stack.length; i++ ) {
 										if ( stack[ i ].indent !== m[1] )
 											continue;
-										
+
 										list = stack[ i ].list;
 										stack.splice( i+1, stack.length - (i+1) );
 										found = true;
@@ -356,7 +360,7 @@
 										//print("not found. l:", uneval(l));
 										wanted_depth++;
 										if ( wanted_depth <= stack.length ) {
-													
+
 											stack.splice(wanted_depth, stack.length - wanted_depth);
 											//print("Desired depth now", wanted_depth, "stack:", stack.length);
 											list = stack[wanted_depth-1].list;
@@ -365,22 +369,22 @@
 										else {
 											//print ("made new stack for messy indent");
 											list = make_list(m);
-													
+
 											last_li.push(list);
 										}
 									}
-				  					
+
 									last_li =  make_li( m[2] );
 									list.push(last_li);
 								} // end depth of shenegains
 								nl = "";
 							}
-			  
+
 							// Add content
 							if ( l.length > m[0].length )
 								li_accumulate += nl + l.substr( m[0].length );
 						} // tight_search
-						
+
 						// 处理并添加最后一次得到的li
 						if ( li_accumulate.length ) {
 							add( last_li, loose, this.processInline( li_accumulate ), nl );
@@ -399,10 +403,10 @@
 
 							last_li.push.apply( last_li, this.toMDTree( contained, [] ) );
 						}
-						
+
 						var next_block = next[0] && next[0].valueOf() || "";
-						
-						
+
+
 						if ( next_block.match(is_list_re) || next_block.match( /^ / ) ) {
 							block = next.shift();
 
@@ -422,11 +426,11 @@
 						}
 						break;
 					} // loose_search
-						
+
 					return ret;
 				};
 			})(),
-			
+
 			// blockquote	:	>BLOCK
 			//				:	>BLOCK
 			blockquote: function blockquote( block, next ) {
@@ -481,7 +485,7 @@
 				jsonml.push( processedBlock );
 				return jsonml;
 			},
-			
+
 			// this.reference
 			// 忽略大小写
 			referenceDefn: function referenceDefn( block, next) {
@@ -490,17 +494,17 @@
 
 				if ( !block.match(re) )
 					return undefined;
-				
+
 				// 变量表
 				if ( !this.references )
 					this.references = {};
 				var refs = this.references;
 
 				var b = Complex.loop_reg_over_block(re, block, function( m ) {
-					
+
 					if ( m[2] && m[2][0] === "<" && m[2][m[2].length-1] === ">" )
 						m[2] = m[2].substring( 1, m[2].length - 1 );
-					
+
 					var ref = refs[ m[1].toLowerCase() ] = {
 						href: m[2]
 					};
@@ -517,7 +521,7 @@
 
 				return [];
 			},
-			
+
 			// table		| Header_1 | Header_2 |
 			//				|:--------:|:--------:|
 			//				|   Row_1  |   Row_2  |
@@ -576,7 +580,7 @@
 					table[1][1].push(['th', html_attrs[i] || {}]
 					.concat( this.processInline(m[1][i].trim())));
 				}
-				
+
 				// now for body contents
 				forEach (m[3].replace(/\|\s*$/mg, '').split('\n'), function (row) {
 					var html_row = ['tr'];
@@ -588,7 +592,7 @@
 
 				return [table];
 			},
-			
+
 			// p
 			para: function para( block ) {
 				// 其它都算是para
@@ -596,15 +600,15 @@
 			}
 		},
 		inline: {
-			
+
 			__oneElement__: function oneElement( text, patterns_or_reg, previous_nodes ) {
 				var m,res,re;
 				var dialect = this.options.dialect;
-				
+
 				patterns_or_reg = patterns_or_reg || dialect.inline.__regExp__;
-				
+
 				re = new RegExp( "([\\s\\S]*?)(" + (patterns_or_reg.source || patterns_or_reg) + ")" );
-				
+
 				m = re.exec( text );
 				if (!m) {
 					// Just boring text
@@ -614,7 +618,7 @@
 					// Some un-interesting text matched. Return that first
 					return [ m[1].length, m[1] ];
 				}
-				
+
 				if ( m[2] in dialect.inline ) {
 					res = dialect.inline[ m[2] ].call(
 						this,
@@ -625,11 +629,11 @@
 				res = res || [ m[2].length, m[2] ];
 				return res;
 			},
-			
+
 			__call__: function inline( text, patterns ) {
-				
+
 				this.is_debug && this.debug( "inline.__call__()\t::arguments\n",arguments);
-				
+
 				var out = [] , res;
 				var dialect = this.options.dialect;
 				function add(x) {
@@ -638,23 +642,23 @@
 					else
 						out.push(x);
 				}
-				
+
 				while ( text.length > 0 ) {
 					res  = dialect.inline.__oneElement__.call( this, text, patterns, out );
 					text = text.substr( res.shift() );
 					forEach(res, add );
 				}
-		
+
 				return out;
 			},
-			
+
 			// These characters are intersting elsewhere, so have rules for them so that
 			// chunks of plain text blocks don't include them
 			"]": function () {},
 			"}": function () {},
-			
+
 			__escape__ : /^\\[\\`\*_{}\[\]()#\+.!\-]/,
-			
+
 			"\\": function escaped( text ) {
 				// [ length of input processed, node/children to add... ]
 				// Only esacape: \ ` * _ { } [ ] ( ) # * + - . !
@@ -664,7 +668,7 @@
 					// Not an esacpe
 					return [ 1, "\\" ];
 			},
-			
+
 			"![": function image( text ) {
 
 				// Unlike images, alt text is plain text only. no other elements are
@@ -699,14 +703,14 @@
 				// Just consume the '!['
 				return [ 2, "![" ];
 			},
-			
+
 			"[": function links( text ) {
-				
+
 				var orig = String(text);
-				
+
 				// Inline content is possible inside `link text`
 				var res = Complex.inline_until_char.call( this, text.substr(1), "]" );
-				
+
 				// No closing ']' found. Just consume the [
 				if ( !res )
 					return [ 1, "[" ];
@@ -730,10 +734,10 @@
 				if ( m ) {
 					var url = m[1];
 					consumed += m[0].length;
-					
+
 					if ( url && url[0] === "<" && url[url.length-1] === ">" )
 						url = url.substring( 1, url.length - 1 );
-					
+
 					// If there is a title we don't have to worry about parens in the url
 					if ( !m[3] ) {
 						var open_parens = 1; // One open that isn't in the capture
@@ -794,7 +798,7 @@
 				// Just consume the "["
 				return [ 1, "[" ];
 			},
-			
+
 			"<": function autoLink( text ) {
 				var m;
 
@@ -809,7 +813,7 @@
 
 				return [ 1, "<" ];
 			},
-			
+
 			"`": function inlineCode( text ) {
 				// 行内元素可以前后由相等数量的任意多个`来包含
 				var m = text.match( /(`+)(([\s\S]*?)\1)/ );
@@ -821,21 +825,21 @@
 					return [ 1, "`" ];
 				}
 			},
-			
+
 			"  \n": function lineBreak() {
 				return [ 3, [ "linebreak" ] ];
 			}
-			
+
 		},
-		
+
 		// MD Tree Tag/Attr  => HTML Tree Tag/Attr
 		__convert_tree__: function( jsonml ){
-			
-			// 如果想递归，则用 convert_md_tree_to_html_tree.call(this) 
-			
+
+			// 如果想递归，则用 convert_md_tree_to_html_tree.call(this)
+
 			var attrs = getAttrOfJsonML( jsonml );
 			var references = this.references;
-			
+
 			switch ( jsonml[ 0 ] ) {
 			case "header":
 				jsonml[ 0 ] = "h" + jsonml[ 1 ].level;
@@ -860,21 +864,21 @@
 				jsonml[ 0 ] = "pre";
 				var code = [ "code" ];
 				var j = 1;
-			
+
 				if( attrs )
 				{
 					j = 2;
-				
+
 					if ( jsonml[1].lineNumber )
 						jsonml[1].class = jsonml[1].lineNumber;
-				
+
 					if (jsonml[1].codeType)
 						code.push( { "class": jsonml[1].codeType } );
-				
+
 					delete jsonml[1].lineNumber;
 					delete jsonml[1].codeType;
 				}
-			
+
 				code.push.apply( code, jsonml.splice( j , jsonml.length - j ) );
 				jsonml[ j ] = code;
 				break;
@@ -913,18 +917,18 @@
 				break;
 			case "img_ref":
 				jsonml[ 0 ] = "img";
-				
+
 				// 获取属性
 				var ref = references[ attrs.ref ];
-			
+
 				// 如果变量存在 转化成link
 				if ( ref ) {
 					delete attrs.ref;
-					
+
 					attrs.src = ref.href;
 					if ( ref.title )
 						attrs.title = ref.title;
-				
+
 					// 删除节点复原信息
 					delete attrs.original;
 				}
@@ -935,8 +939,8 @@
 			}
 		}
 	};
-	
-	
+
+
 	// strong和em标签
 	function strong_em( tag, md ) {
 
@@ -947,11 +951,11 @@
 			this.len_after = len;
 			this.name = "close_" + md;
 		}
-	
+
 
 		return function ( text ) {
 			if ( this[state_slot][0] === md ) {
-		  
+
 				this[state_slot].shift();
 
 				// "Consume" everything to go back to the recrusion in the else-block below
@@ -961,7 +965,7 @@
 				// Store a clone of the em/strong states
 				var other = this[other_slot].slice(),
 				state = this[state_slot].slice();
-		
+
 
 				this[state_slot].unshift(md);
 
@@ -978,8 +982,8 @@
 				}
 				else {
 					// Restore the state of the other kind. We might have mistakenly closed it.
-					
-					
+
+
 					this[other_slot] = other;
 					this[state_slot] = state;
 
@@ -989,13 +993,13 @@
 			}
 		}; // End returned function
 	}
-	
+
 	Complex.inline["**"] = strong_em("strong", "**");
 	Complex.inline["__"] = strong_em("strong", "__");
 	Complex.inline["*"]  = strong_em("em", "*");
 	Complex.inline["_"]  = strong_em("em", "_");
-	
-	
+
+
 	Complex.inline_until_char = function( text, want ) {
 		var consumed = 0 , nodes = [];
 
@@ -1013,24 +1017,24 @@
 
 			var res = this.options.dialect.inline.__oneElement__.call(this, text.substr( consumed ) );
 			consumed += res[ 0 ];
-			
+
 			// 将分析完的字符串存入nodes
 			nodes.push.apply( nodes, res.slice( 1 ) );
 		}
 	};
-	
+
 	/** loop_reg_over_block
-	 * 
+	 *
 	 * @description block中的所有符合re正则的式子逐个执行cb函数
-	 * 
+	 *
 	 * @param re		用于匹配的正则 不要使用/g
 	 * @param block		被匹配的块
 	 * @param cb(m)		回调函数 对匹配到的内容之行 m是匹配结果
-	 * 
+	 *
 	 * @return 剩余的未成功匹配的字符串
 	 */
 	Complex.loop_reg_over_block = function ( re , block , cb ) {
-		
+
 		var m,
 		b = block.valueOf();
 
@@ -1038,10 +1042,10 @@
 			b = b.substr( m[0].length );
 			cb.call(this, m);
 		}
-		
+
 		return b;
-	};	
-	
+	};
+
 	Markdown.buildBlockOrder( Complex.block );
 	Markdown.buildInlineRegExp( Complex.inline );
 	Markdown.addDialect( Complex );
