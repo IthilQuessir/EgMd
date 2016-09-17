@@ -1,1 +1,0 @@
-function paragraph(){}paragraph.prototype.parse=function(a){var r=new Node("p");return r.add(this.parse(new textNode)),r};

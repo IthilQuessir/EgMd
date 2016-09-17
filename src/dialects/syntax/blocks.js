@@ -8,7 +8,7 @@ var Blocks = (function(undefined) {
 
     Blocks.prototype.parse = function(str) {
 
-        var pattern = /([\s\S]+?)($|\n#|\n(?:\s*\n?|$)+)/g,
+        var pattern = /([\s\S]+?)($|\n(?:\s*\n|\s*$)+)/g,
             queue = [],
             reg = null,
             parseRs = null,
