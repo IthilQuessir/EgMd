@@ -1,5 +1,3 @@
-// @codekit-prepend "../../../src/dialects/min/before-min.js"
-
 var dialect = new Dialect();
 var textarea = document.getElementById("editor");
 var article = document.getElementById("article");
@@ -8,7 +6,7 @@ var str = textarea.value;
 
 function translate(str) {
     var node = dialect.parse(str);
-    console.log(node);
+    console.log('[test file]', node);
 
     article.appendChild(node.toHtml());
 }

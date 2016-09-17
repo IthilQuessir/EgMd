@@ -1,24 +1,27 @@
-function Inline() {
-    this.expendGrammars = [];
+var Inline = (function() {
 
-    this.pattern = null;
-}
+    var expendGrammars = [];
 
-Inline.prototype.check = function (str) {
+    function Inline() {
+    }
 
-};
+    Inline.expend = function (grammar) {
+        this.expendGrammars.push(grammar);
+    };
 
-Inline.prototype.resetCheckPattern = function() {
+    Inline.prototype.check = function (str) {
 
-}
+    };
 
-Inline.prototype.parse = function (str) {
+    Inline.prototype.resetCheckPattern = function() {
+
+    }
+
+    Inline.prototype.parse = function (str) {
+
+        return new textNode(str);
+    };
 
 
 
-    return new textNode(str);
-};
-
-Inline.prototype.expend = function (grammar) {
-    this.expendGrammars.push(grammar);
-};
+}());

@@ -8,7 +8,7 @@ var Blocks = (function(undefined) {
 
     Blocks.prototype.parse = function(str) {
 
-        var pattern = /([\s\S]+?)($|\n#|\n(?:\s*\n?|$)+)/g,
+        var pattern = /([\s\S]+?)($|\n(?:\s*\n|\s*$)+)/g,
             queue = [],
             reg = null,
             parseRs = null,
@@ -117,6 +117,41 @@ var Block = (function(global, undefined) {
 }());
 
 
+(function() {
+
+    function setextHeader() {}
+
+    setextHeader.prototype.parse = function(str, queue) {
+
+        var pattern = /^(.*)\n([-=])\2\2+(?:\n|$)/,
+            reg = null,
+            level = "",
+            header = null;
+
+        if (!pattern.test(str)) {
+            return null;
+        }
+
+        reg = str.match(pattern);
+
+        level = (reg[2] === "=") ? "h1" : "h2";
+        header = new Node(level);
+
+        header.addChild(new TextNode(reg[1]));
+
+        // 字符串尾部还有其余内容，则将其放回队列头部
+        if( reg[0].length < str.length ) {
+            queue.push( str.substr(reg[0].length) );
+        }
+
+        return header;
+    };
+
+    Block.expend(setextHeader);
+
+}());
+
+
 (function(undefined) {
 
     // var Block = global.Block;
@@ -140,9 +175,21 @@ var Block = (function(global, undefined) {
 // @codekit-prepend "./blocks.js"
 // @codekit-prepend "./block.js"
 // @codekit-prepend "./atxHeader.js"
+// @codekit-prepend "./setextHeader.js"
 // @codekit-prepend "./paragraph.js"
 
 function Dialect() {}
+
+/**
+ * 对输入的字符串进行格式化，统一换行符
+ * @param {String} str 被格式化的字符串
+ * @return {String}
+ */
+function strInit(str) {
+
+    return str.replace(/(\r\n|\n|\r)/g, "\n"); // 把不同的换行符都替换成\n
+
+}
 
 /**
  * 解析Block
@@ -155,17 +202,6 @@ Dialect.prototype.parse = function(str) {
 
     return blocks.parse(strInit(str));
 };
-
-/**
- * 对输入的字符串进行格式化，统一换行符
- * @param {String} str 被格式化的字符串
- * @return {String}
- */
-function strInit(str) {
-
-    return str.replace(/(\r\n|\n|\r)/g, "\n"); // 把不同的换行符都替换成\n
-
-}
 
 return Dialect;
 
