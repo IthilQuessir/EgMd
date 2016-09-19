@@ -6,9 +6,10 @@
 
     Paragraph.prototype.parse = function(str) {
 
-        var node = new Node("p");
+        var node = new Node("p"),
+            inline = new Inline();
 
-        node.addChild(new TextNode(str));
+        node.appendChild(inline.parse(str));
 
         return node;
     };

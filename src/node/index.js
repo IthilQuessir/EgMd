@@ -23,7 +23,7 @@ var Node = (function() {
         return this;
     };
 
-    Node.prototype.addChild = function(node) {
+    Node.prototype.appendChild = function(node) {
         this.children.push(node);
         return this;
     };

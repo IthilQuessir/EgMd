@@ -23,7 +23,7 @@
         var reg = str.match(pattern);
         var header = new Node("h" + reg[1].length);
 
-        header.addChild(new TextNode(reg[2]));
+        header.appendChild(new TextNode(reg[2]));
 
         if (reg[0].length < str.length) {
             // 将没有解析的尾部放回队列

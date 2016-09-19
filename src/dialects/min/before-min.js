@@ -71,7 +71,7 @@ var Node = (function() {
         return this;
     };
 
-    Node.prototype.addChild = function(node) {
+    Node.prototype.appendChild = function(node) {
         this.children.push(node);
         return this;
     };
@@ -125,6 +125,121 @@ var TextNode = (function() {
 var Dialect = (function(undefined) {
 
 
+var Inline = (function() {
+
+    var expendGrammars = [];
+
+    function Inline() {}
+
+    Inline.expend = function(grammar) {
+        expendGrammars.push(grammar);
+    };
+
+    Inline.prototype.parse = function(str) {
+
+        var queue = [str],
+            gammar = null,
+            i = -1,
+            len = expendGrammars.length,
+            rs = null,
+            stack = null,
+            node = new Node("");
+
+        while (queue.length) {
+
+            i = -1;
+            str = queue.pop();
+
+            while (++i < len) {
+                stack = [];
+                gammar = new expendGrammars[i]();
+
+                rs = gammar.parse(str, stack);
+
+                if (stack.length && rs === null) {
+                    // 语法仅对字符串结构进行调整，保障其优先级
+
+                    stack.reverse();
+                    str = stack.pop();
+                    queue.push.apply(queue, stack);
+
+                    continue;
+                } else if (stack.length) {
+                    // 语法解析字符串，并有部分尾部部分无法解析
+
+                    stack.reverse();
+                    queue.push.apply(queue, stack);
+
+                    break;
+                } else if (rs !== null) {
+                    // 语法对字符串进行了完整成功的解析
+
+                    break;
+                }
+            }
+
+            if (rs !== null ) {
+                node.appendChild(rs);
+            }
+        }
+
+        return node;
+    };
+
+    return Inline;
+
+
+}());
+
+
+(function() {
+
+
+
+    function Escaped() {
+
+    }
+
+    Escaped.prototype.parse = function(str, queue) {
+
+        // Only esacape: \ ` * _ { } [ ] ( ) # * + - . !
+        var pattern = /\\([\\`\*_{}\[\]()#\+.!\-])/,
+            reg = pattern.exec(str),
+            rs = null;
+
+        if (!pattern.test(str)) {
+            return null;
+        }
+
+        if(reg.index === 0) {
+            queue.push(str.substr(reg[0].length));
+            return new TextNode(reg[1]);
+        } else {
+            queue.push(str.substring(0,reg.index));
+            queue.push(str.substr(reg.index));
+            return null;
+        }
+
+        return rs;
+    };
+
+    Inline.expend(Escaped);
+}());
+
+
+(function() {
+
+    function inlinePlainText() {
+    }
+
+    inlinePlainText.prototype.parse = function (str) {
+        return new TextNode(str);
+    };
+
+    Inline.expend(inlinePlainText);
+}());
+
+
 var Blocks = (function(undefined) {
 
     // var Block = this.Block;
@@ -153,11 +268,14 @@ var Blocks = (function(undefined) {
             reg = pattern.exec(str);
         }
 
+        // 这里主要目的是之后在向头部插入时使用push而不是unshif，因为unshift在IE中有BUG
+        queue.reverse();
+
         while (queue.length) {
-            parseRs = this.blockGrammar.parse(queue.shift(), queue);
+            parseRs = this.blockGrammar.parse(queue.pop(), queue);
 
             if(parseRs !== null) {
-                node.addChild(parseRs);
+                node.appendChild(parseRs);
             }
         }
 
@@ -172,23 +290,40 @@ var Block = (function(global, undefined) {
 
     var expendGrammars = [];
 
-    function Block() {
-    }
+    function Block() {}
 
     Block.prototype.parse = function(str, queue) {
 
         var i = -1,
             len = expendGrammars.length,
             rs = null,
-            grammar = null;
+            grammar = null,
+            stack = null;
 
         while (++i < len) {
-            grammar = new expendGrammars[i]();
 
-            rs = grammar.parse(str, queue);
-            if (rs !== null) {
+            grammar = new expendGrammars[i]();
+            stack = [];
+
+            rs = grammar.parse(str, stack);
+
+            if (stack.length && rs === null) {
+
+                stack.reverse();
+                str = stack.pop();
+                queue.push.apply(queue, stack);
+
+                continue;
+            } else if (stack.length) {
+
+                stack.reverse();
+                queue.push.apply(queue, stack);
+
+                break;
+            } else if (rs !== null ) {
                 break;
             }
+
         }
 
         return rs;
@@ -229,7 +364,7 @@ var Block = (function(global, undefined) {
         var reg = str.match(pattern);
         var header = new Node("h" + reg[1].length);
 
-        header.addChild(new TextNode(reg[2]));
+        header.appendChild(new TextNode(reg[2]));
 
         if (reg[0].length < str.length) {
             // 将没有解析的尾部放回队列
@@ -253,7 +388,8 @@ var Block = (function(global, undefined) {
         var pattern = /^(.*)\n([-=])\2\2+(?:\n|$)/,
             reg = null,
             level = "",
-            header = null;
+            header = null,
+            inline = null;
 
         if (!pattern.test(str)) {
             return null;
@@ -264,7 +400,8 @@ var Block = (function(global, undefined) {
         level = (reg[2] === "=") ? "h1" : "h2";
         header = new Node(level);
 
-        header.addChild(new TextNode(reg[1]));
+        inline = new Inline();
+        header.appendChild(inline.parse(reg[1]));
 
         // 字符串尾部还有其余内容，则将其放回队列头部
         if( reg[0].length < str.length ) {
@@ -287,9 +424,10 @@ var Block = (function(global, undefined) {
 
     Paragraph.prototype.parse = function(str) {
 
-        var node = new Node("p");
+        var node = new Node("p"),
+            inline = new Inline();
 
-        node.addChild(new TextNode(str));
+        node.appendChild(inline.parse(str));
 
         return node;
     };
@@ -299,6 +437,9 @@ var Block = (function(global, undefined) {
 }());
 
 
+// @codekit-prepend "./inline.js"
+// @codekit-prepend "./escaped.js"
+// @codekit-prepend "./inlinePlainText.js"
 // @codekit-prepend "./blocks.js"
 // @codekit-prepend "./block.js"
 // @codekit-prepend "./atxHeader.js"

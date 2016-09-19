@@ -7,7 +7,8 @@
         var pattern = /^(.*)\n([-=])\2\2+(?:\n|$)/,
             reg = null,
             level = "",
-            header = null;
+            header = null,
+            inline = null;
 
         if (!pattern.test(str)) {
             return null;
@@ -18,7 +19,8 @@
         level = (reg[2] === "=") ? "h1" : "h2";
         header = new Node(level);
 
-        header.addChild(new TextNode(reg[1]));
+        inline = new Inline();
+        header.appendChild(inline.parse(reg[1]));
 
         // 字符串尾部还有其余内容，则将其放回队列头部
         if( reg[0].length < str.length ) {
