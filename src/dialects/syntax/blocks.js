@@ -26,11 +26,14 @@ var Blocks = (function(undefined) {
             reg = pattern.exec(str);
         }
 
+        // 这里主要目的是之后在向头部插入时使用push而不是unshif，因为unshift在IE中有BUG
+        queue.reverse();
+
         while (queue.length) {
-            parseRs = this.blockGrammar.parse(queue.shift(), queue);
+            parseRs = this.blockGrammar.parse(queue.pop(), queue);
 
             if(parseRs !== null) {
-                node.addChild(parseRs);
+                node.appendChild(parseRs);
             }
         }
 

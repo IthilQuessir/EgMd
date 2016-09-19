@@ -1,3 +1,6 @@
+// @codekit-prepend "./inline.js"
+// @codekit-prepend "./escaped.js"
+// @codekit-prepend "./inlinePlainText.js"
 // @codekit-prepend "./blocks.js"
 // @codekit-prepend "./block.js"
 // @codekit-prepend "./atxHeader.js"
