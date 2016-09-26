@@ -5,6 +5,7 @@
 // @codekit-prepend "./block.js"
 // @codekit-prepend "./atxHeader.js"
 // @codekit-prepend "./setextHeader.js"
+// @codekit-prepend "./horizLine.js"
 // @codekit-prepend "./paragraph.js"
 
 function Dialect() {}

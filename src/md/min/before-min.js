@@ -57,8 +57,8 @@ var Attr = (function() {
 var Node = (function() {
 
     function Node(tag) {
-        this.tag = tag;
-        this.attr = new Attr();
+        this.__tag__ = tag;
+        this.__attr__ = new Attr();
         this.children = [];
     }
 
@@ -66,16 +66,16 @@ var Node = (function() {
 
         // 如果没有传入value 则返回name对应属性名的值
         if (typeof value === "undefined") {
-            return this.attr.get(name);
+            return this.__attr__.get(name);
         } else {
-            return this.attr.add(name, value);
+            return this.__attr__.add(name, value);
         }
 
         return this;
     };
 
     Node.prototype.rmAttr = function(name) {
-        this.attr.rm(name);
+        this.__attr__.rm(name);
         return this;
     };
 
@@ -91,10 +91,15 @@ var Node = (function() {
             i = -1,
             len = children.length;
 
-        if (this.tag === "") {
+        if (this.__tag__ === "") {
             dom = document.createDocumentFragment();
         } else {
-            dom = document.createElement(this.tag);
+            dom = document.createElement(this.__tag__);
+
+            this.__attr__.forEach(function(key, value) {
+                dom.setAttribute(key, value);
+            });
+
         }
 
         while(++i < len) {
@@ -424,6 +429,67 @@ var Block = (function(global, undefined) {
 }());
 
 
+(function() {
+
+    var className = {
+        dash: "dash",
+        underline: "underline",
+        asterisk: "asterisk"
+    };
+
+    function horizLine() {
+
+    }
+
+    horizLine.prototype.parse = function(str, queue) {
+
+        var pattern = /^(?:([\s\S]*?)\n)?[ \t]*(([-_*])(?:[ \t]*\3){2,})[ \t]*(?:\n([\s\S]*))?$/,
+            reg = str.match(pattern),
+            node = null;
+
+        if (!reg) {
+            return null;
+        }
+
+        // 在hr之前又内容，将内容分割后重新放回流
+        if (reg[1]) {
+            queue.push(reg[1]);
+            queue.push(reg[2]);
+            if (reg[4]) {
+                queue.push(reg[4]);
+            }
+
+            return null;
+        }
+
+        node = new Node("hr");
+
+        switch (reg[3]) {
+            case '-':
+                node.attr("class", className.dash);
+                break;
+            case '_':
+                node.attr("class", className.underline);
+                break;
+            case '*':
+                node.attr("class", className.asteris);
+                break;
+                // No Default;
+        }
+
+        // hr之后有剩余内容
+        if (reg[4]) {
+            queue.push(reg[4]);
+        }
+
+        return node;
+    };
+
+    Block.expend(horizLine);
+
+}());
+
+
 (function(undefined) {
 
     // var Block = global.Block;
@@ -452,6 +518,7 @@ var Block = (function(global, undefined) {
 // @codekit-prepend "./block.js"
 // @codekit-prepend "./atxHeader.js"
 // @codekit-prepend "./setextHeader.js"
+// @codekit-prepend "./horizLine.js"
 // @codekit-prepend "./paragraph.js"
 
 function Dialect() {}
