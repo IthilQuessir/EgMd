@@ -3,3 +3,4 @@ config.codekit
 .vscode
 .codekit-cache
 .DS_Store
+node_modules
