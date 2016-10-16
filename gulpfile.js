@@ -12,3 +12,12 @@ gulp.task("demo", function () {
     }));
 
 });
+
+gulp.task("test", function () {
+    gulp.src("./")
+        .pipe(webserver({
+            livereload: true,
+            directoryListing: true,
+            open: "test"
+        }));
+});
