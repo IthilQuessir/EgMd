@@ -1,4 +1,6 @@
-var Node = (function() {
+Md.extend("node", function(require) {
+
+    var Attr = require("attr");
 
     function Node(tag) {
         this.__tag__ = tag;
@@ -46,7 +48,7 @@ var Node = (function() {
 
         }
 
-        while(++i < len) {
+        while (++i < len) {
             dom.appendChild(children[i].toHtml());
         }
 
@@ -54,5 +56,4 @@ var Node = (function() {
     };
 
     return Node;
-
-}());
+});
