@@ -1,8 +1,8 @@
-(function() {
+Md.extend("syntax/ setext-header", function(require) {
 
-    function setextHeader() {}
+    function SetextHeader() {}
 
-    setextHeader.prototype.parse = function(str, queue) {
+    SetextHeader.prototype.parse = function(str, queue) {
 
         var pattern = /^(.*)\n([-=])\2\2+(?:\n|$)/,
             reg = null,
@@ -23,13 +23,12 @@
         header.appendChild(inline.parse(reg[1]));
 
         // 字符串尾部还有其余内容，则将其放回队列头部
-        if( reg[0].length < str.length ) {
-            queue.push( str.substr(reg[0].length) );
+        if (reg[0].length < str.length) {
+            queue.push(str.substr(reg[0].length));
         }
 
         return header;
     };
 
-    Block.expend(setextHeader);
-
-}());
+    return SetextHeader;
+});

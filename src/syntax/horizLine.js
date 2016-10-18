@@ -1,4 +1,4 @@
-(function() {
+Md.extend("syntax/horiz-line", function(require) {
 
     var className = {
         dash: "dash",
@@ -6,11 +6,11 @@
         asterisk: "asterisk"
     };
 
-    function horizLine() {
+    function HorizLine() {
 
     }
 
-    horizLine.prototype.parse = function(str, queue) {
+    HorizLine.prototype.parse = function(str, queue) {
 
         var pattern = /^(?:([\s\S]*?)\n)?[ \t]*(([-_*])(?:[ \t]*\3){2,})[ \t]*(?:\n([\s\S]*))?$/,
             reg = str.match(pattern),
@@ -54,6 +54,5 @@
         return node;
     };
 
-    Block.expend(horizLine);
-
-}());
+    return HorizLine;
+});

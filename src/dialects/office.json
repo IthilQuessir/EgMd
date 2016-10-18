@@ -1,0 +1,16 @@
+[
+    {
+    "name": "office",
+    "syntax": [
+        "block",
+        "inline",
+
+        "combin-block",
+        "atx-header",
+        "horiz-line",
+        "pragraph",
+
+        "escaped",
+        "inline-plain-text"
+    ]
+}]

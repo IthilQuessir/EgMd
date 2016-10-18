@@ -1,11 +1,13 @@
-(function() {
+Md.extend("syntax/inline-plain-text", function(require) {
 
-    function inlinePlainText() {
-    }
+    var TextNode = require("text-node");
 
-    inlinePlainText.prototype.parse = function (str) {
+    function PlainText() {}
+
+    PlainText.prototype.parse = function(str) {
         return new TextNode(str);
     };
 
-    Inline.expend(inlinePlainText);
-}());
+    return PlainText;
+
+});

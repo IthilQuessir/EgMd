@@ -1,6 +1,6 @@
-(function(undefined) {
+Md.extend("syntax/paragraph", function (require) {
 
-    // var Block = global.Block;
+    var Node = require("node");
 
     function Paragraph() {}
 
@@ -14,6 +14,6 @@
         return node;
     };
 
-    Block.expend(Paragraph);
+    return Paragraph;
 
-}());
+});

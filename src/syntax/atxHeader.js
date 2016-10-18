@@ -5,16 +5,16 @@
  * ###### 标题
  */
 
-(function(undefined) {
+Md.extend("syntax/atx-header", function (require) {
 
-    // var Block = global.Block;
+    var Node = require("node");
 
     var pattern = /^(#{1,6})\s*(.*?)\s*#*\s*(?:\n|$)/;
 
-    function atxHeader() {
+    function AtxHeader() {
     }
 
-    atxHeader.prototype.parse = function(str, queue) {
+    AtxHeader.prototype.parse = function(str, queue) {
 
         if (!pattern.test(str)) {
             return null;
@@ -33,6 +33,5 @@
         return header;
     };
 
-    Block.expend(atxHeader);
-
-}());
+    return AtxHeader;
+});

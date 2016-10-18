@@ -1,6 +1,4 @@
-(function() {
-
-
+Md.extend("syntax/escaped", function(require) {
 
     function Escaped() {
 
@@ -17,11 +15,11 @@
             return null;
         }
 
-        if(reg.index === 0) {
+        if (reg.index === 0) {
             queue.push(str.substr(reg[0].length));
             return new TextNode(reg[1]);
         } else {
-            queue.push(str.substring(0,reg.index));
+            queue.push(str.substring(0, reg.index));
             queue.push(str.substr(reg.index));
             return null;
         }
@@ -29,5 +27,5 @@
         return rs;
     };
 
-    Inline.expend(Escaped);
-}());
+    return Escaped;
+});
