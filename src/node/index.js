@@ -3,7 +3,7 @@ Md.extend("node", function(require) {
     var Attr = require("attr");
 
     function Node(tag) {
-        this.__tag__ = tag;
+        this.__tag__ = tag ? tag : "";
         this.__attr__ = new Attr();
         this.children = [];
     }

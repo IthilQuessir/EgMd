@@ -1,16 +1,47 @@
-var Block = (function(global, undefined) {
+Md.extend("block", function(require) {
 
-    var expendGrammars = [];
+    function Block() {
+        this.lib = [];
+    }
 
-    function Block() {}
+    // XXX 没有去重
+    Block.prototype.extend = function(syntax) {
+        this.lib.push(syntax);
+    };
 
-    Block.prototype.parse = function(str, queue) {
+    Block.prototype.parse = function(str) {
 
-        var i = -1,
-            len = expendGrammars.length,
-            rs = null,
-            grammar = null,
-            stack = null;
+        var queue = [str],
+            stack = null,
+            i,
+            len = this.lib.length,
+            rs = null;
+
+
+        do {
+
+            stack = [];
+            str = queue.pop();
+
+            for (i = 0; i < len; i++) {
+
+                rs = this.lib[i].parse(str, stack);
+
+                if (stack.length) {
+                    stack.reverse();
+                    queue.push.apply(queue, stack);
+                }
+
+                if (rs) {
+                    node.appendChild(rs);
+                    break;
+                } else if (stack.length) {
+                    str = queue.pop();
+                }
+
+            }
+
+        } while (queue.length);
 
         while (++i < len) {
 
@@ -32,7 +63,7 @@ var Block = (function(global, undefined) {
                 queue.push.apply(queue, stack);
 
                 break;
-            } else if (rs !== null ) {
+            } else if (rs !== null) {
                 break;
             }
 
@@ -47,5 +78,4 @@ var Block = (function(global, undefined) {
     };
 
     return Block;
-
-}(this));
+});

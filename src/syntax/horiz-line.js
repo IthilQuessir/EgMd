@@ -6,8 +6,9 @@ Md.extend("syntax/horiz-line", function(require) {
         asterisk: "asterisk"
     };
 
-    function HorizLine() {
-
+    function HorizLine(dialect) {
+        var block = dialect.getSyntax("block");
+        block.extend(this);
     }
 
     HorizLine.prototype.parse = function(str, queue) {

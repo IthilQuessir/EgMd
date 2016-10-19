@@ -19,12 +19,12 @@ Md.extend("dialect-builder", function (require) {
         this.syntaxLib[name] = new syntax(this);
     };
 
-    Dialect.prototype.require = function (name) {
+    Dialect.prototype.getSyntax = function (name) {
 
         if (name in this.syntaxLib) {
             return this.syntaxLib[name];
         } else {
-            throw new Error("[Dialect require] This dialect hasn't syntax named " + name);
+            throw new Error("[Dialect getSyntax] This dialect hasn't syntax named " + name);
         }
 
     };

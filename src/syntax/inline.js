@@ -1,65 +1,49 @@
-var Inline = (function() {
+Md.extend("syntax/inline", function(require) {
 
-    var expendGrammars = [];
+    function Inline() {
+        this.lib = [];
+    }
 
-    function Inline() {}
-
-    Inline.expend = function(grammar) {
-        expendGrammars.push(grammar);
+    Inline.prototype.extend = function(syntax) {
+        // XXX 未去重
+        this.lib.push(syntax);
     };
 
     Inline.prototype.parse = function(str) {
 
         var queue = [str],
-            gammar = null,
-            i = -1,
-            len = expendGrammars.length,
-            rs = null,
             stack = null,
-            node = new Node("");
+            i,
+            len = this.lib.length,
+            rs = null,
+            node = new Node();
 
-        while (queue.length) {
+        do {
 
-            i = -1;
+            stack = [];
             str = queue.pop();
 
-            while (++i < len) {
-                stack = [];
-                gammar = new expendGrammars[i]();
+            for (i = 0; i < len; i++) {
 
-                rs = gammar.parse(str, stack);
+                rs = this.lib[i].parse(str, stack);
 
-                if (stack.length && rs === null) {
-                    // 语法仅对字符串结构进行调整，保障其优先级
-
+                if (stack.length) {
                     stack.reverse();
-                    str = stack.pop();
                     queue.push.apply(queue, stack);
+                }
 
-                    continue;
+                if (rs) {
+                    node.appendChild(rs);
+                    break;
                 } else if (stack.length) {
-                    // 语法解析字符串，并有部分尾部部分无法解析
-
-                    stack.reverse();
-                    queue.push.apply(queue, stack);
-
-                    break;
-                } else if (rs !== null) {
-                    // 语法对字符串进行了完整成功的解析
-
-                    break;
+                    str = queue.pop();
                 }
             }
 
-            if (rs !== null ) {
-                node.appendChild(rs);
-            }
-        }
+        } while (queue.length);
 
         return node;
     };
 
     return Inline;
-
-
-}());
+});

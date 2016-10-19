@@ -1,7 +1,8 @@
 Md.extend("syntax/escaped", function(require) {
 
-    function Escaped() {
-
+    function Escaped(dialect) {
+        var block = dialect.getSyntax("block");
+        block.extend(this);
     }
 
     Escaped.prototype.parse = function(str, queue) {
