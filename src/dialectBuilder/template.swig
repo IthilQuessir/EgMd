@@ -14,6 +14,6 @@ Md.extend("dialects/{{dialect.name}}", function(require) {
         ])
         .build();
 
-})
+});
 
 {%- endfor %}

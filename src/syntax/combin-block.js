@@ -1,4 +1,4 @@
-Md.extend("combin-block", function (require) {
+Md.extend("syntax/combin-block", function (require) {
 
     function CombinBlock(dialect) {
 

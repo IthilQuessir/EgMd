@@ -1,4 +1,4 @@
-Md.extend("block", function(require) {
+Md.extend("syntax/block", function(require) {
 
     function Block() {
         this.lib = [];
