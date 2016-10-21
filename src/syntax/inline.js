@@ -1,5 +1,7 @@
 Md.extend("syntax/inline", function(require) {
 
+    var Node = require("node");
+
     function Inline() {
         this.lib = [];
     }
@@ -18,13 +20,15 @@ Md.extend("syntax/inline", function(require) {
             rs = null,
             node = new Node();
 
+            console.log("[Inline parse]", str);
+
         do {
 
-            stack = [];
             str = queue.pop();
 
             for (i = 0; i < len; i++) {
 
+                stack = [];
                 rs = this.lib[i].parse(str, stack);
 
                 if (stack.length) {

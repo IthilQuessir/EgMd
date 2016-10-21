@@ -15,17 +15,12 @@
             if (path[i] in target) {
                 target = target[path[i]];
             } else {
-                throw new Error("[Md require] Cannot find the module;\nThe url is " + url);
+                throw new Error("[Md require] Cannot find module: " + url);
             }
 
         }
 
-
-        if (path in modules) {
-            return modules[name];
-        } else {
-            throw new Error("CANNOT ");
-        }
+        return target;
 
     }
 
@@ -54,23 +49,46 @@
         if (theModule) {
             target[path[i]] = theModule;
         } else {
-            throw new Error("[Md extend] the module \"" + path[i] + "\"" + "had existed");
+            throw new Error("[Md extend] Unexpected return of the module \"" + path[i] + "\"");
         }
     }
 
     function Md(str, options) {
 
-        var dialect = new Dialect(),
-            nodeTree = dialect.parse(str),
-            domTree = nodeTree.toHtml();
+        var dialects = require("dialects"),
+            dialect = null,
+            key;
 
-        this.options = options;
+        options = options || {};
 
-        return domTree;
+        /**
+         * 若配置的解析器不存在或者未配置
+         * 则随意选择一个解析器作为默认解析器进行解析
+         */
+        if (options.dialect && options.dialect in dialects) {
+            dialect = dialects[options.dialect];
+        } else {
+            for (key in dialects) {
+                dialect = dialects[key];
+                break;
+            }
+        }
+
+        if (!dialect) {
+            throw new Error("[Md] Plese use full_version or include dialect module\n" +
+                "请使用完整版或者 Md-seed.js + dialect模块配合使用。" +
+                "仅单独使用Md-seed.js是无法运行的");
+        }
+
+        str = str
+            .replace(/^\s*\n/, "")
+            .replace(/\s*$/, "");
+
+        return dialect.parse(str).toHtml();
 
     }
 
-    Md.prototype.extend = extend;
+    Md.extend = extend;
 
     global.Md = Md;
 

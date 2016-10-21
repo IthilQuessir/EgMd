@@ -7,7 +7,7 @@ Md.extend("dialect-builder", function (require) {
     Dialect.prototype.parse = function (str) {
 
         if ("block" in this.syntaxLib) {
-            this.syntaxLib.block(str);
+            return this.syntaxLib.block.parse(str);
         } else {
             throw new Error("[Dialect parse] Dialect must has extend block module");
         }
@@ -29,15 +29,17 @@ Md.extend("dialect-builder", function (require) {
 
     };
 
-    function dialectBuilder() {
+    function DialectBuilder() {
         this.list = [];
     }
 
-    dialectBuilder.prototype.addSyntax = function (arr) {
+    DialectBuilder.prototype.setSyntax = function (arr) {
         this.list.push.apply(this.list, arr);
+
+        return this;
     };
 
-    dialectBuilder.prototype.build = function () {
+    DialectBuilder.prototype.build = function () {
 
         var i = 0,
             len = this.list.length,
@@ -46,12 +48,16 @@ Md.extend("dialect-builder", function (require) {
 
         for (; i < len; i ++) {
 
-            syntax = require(this.list[i]);
+            syntax = require("syntax/" + this.list[i]);
 
             dialect.extend(this.list[i], syntax);
 
         }
 
+        return dialect;
+
     };
+
+    return DialectBuilder;
 
 });

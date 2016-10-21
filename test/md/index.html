@@ -7,18 +7,40 @@
 
     <link rel="stylesheet" href="css/index.css">
 
+    <script src="../../release/full_version/Md-office.js" charset="utf-8"></script>
+
     <title>基础测试</title>
 </head>
 <body>
     <textarea name="editor" id="editor">
+
 # 基础语法测试
 
 这是一个段落
 
 
+
+这是一级标题
+===
+
+这是二级标题
+---
+
+支持的转义字符：\[、\]、\\ 、\`、\*、\_、\{、\}、\(、\)、\#、\*、\+、\-、\.、\!
+
+优雅的分割线 "*"
+******
+
+优雅的分割线 "-" 注意：必须换行，否则和标准二级标题语法相同
+
+-------
+
+优雅的分割线 "_"
+___
+
     </textarea>
     <article id="article"></article>
 
-    <script src="min/index-min.js" charset="utf-8"></script>
+    <script src="index.js" charset="utf-8"></script>
 </body>
 </html>

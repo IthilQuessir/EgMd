@@ -7,8 +7,9 @@
 
         "combin-block",
         "atx-header",
+        "setext-header",
         "horiz-line",
-        "pragraph",
+        "paragraph",
 
         "escaped",
         "inline-plain-text"

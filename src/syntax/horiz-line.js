@@ -1,5 +1,7 @@
 Md.extend("syntax/horiz-line", function(require) {
 
+    var Node = require("node");
+
     var className = {
         dash: "dash",
         underline: "underline",
@@ -12,6 +14,9 @@ Md.extend("syntax/horiz-line", function(require) {
     }
 
     HorizLine.prototype.parse = function(str, queue) {
+
+        var a = {s: str};
+        console.log("[HorizLine parse] " , a);
 
         var pattern = /^(?:([\s\S]*?)\n)?[ \t]*(([-_*])(?:[ \t]*\3){2,})[ \t]*(?:\n([\s\S]*))?$/,
             reg = str.match(pattern),

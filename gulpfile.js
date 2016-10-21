@@ -8,7 +8,7 @@ var gulp = require('gulp'),
 gulp.task("demo", function() {
 
     gulp.src('./')
-        .pipe(webserver({
+        .pipe(plugins.webserver({
             livereload: true,
             directoryListing: true,
             open: "demo"
@@ -18,7 +18,7 @@ gulp.task("demo", function() {
 
 gulp.task("test", function() {
     gulp.src("./")
-        .pipe(webserver({
+        .pipe(plugins.webserver({
             livereload: true,
             directoryListing: true,
             open: "test"
@@ -53,8 +53,8 @@ gulp.task("dialects", function() {
         var map = {},
             arr = [];
 
-        json.forEach(function (dialect) {
-            dialect.syntax.forEach(function (syntax) {
+        json.forEach(function(dialect) {
+            dialect.syntax.forEach(function(syntax) {
                 if (!(syntax in map)) {
                     map[syntax] = 1;
                     arr.push("./src/syntax/" + syntax + ".js");
@@ -75,6 +75,9 @@ gulp.task("dialects", function() {
 
             return gulp.src("./src/dialectBuilder/template.swig")
                 .pipe(plugins.swig({
+                    defaults: {
+                        cache: false
+                    },
                     data: {
                         dialects: config
                     }
@@ -92,7 +95,7 @@ gulp.task("dialects", function() {
 gulp.task("full", function() {
 
     gulp.src("./release/dialects/**/*.js")
-        .pipe(plugins.foreach(function (steam, file) {
+        .pipe(plugins.foreach(function(steam, file) {
 
             return steam
                 .pipe(plugins.addSrc.prepend("./release/Md-seed.js"))
@@ -106,4 +109,22 @@ gulp.task("full", function() {
 
 gulp.task("default", function() {
 
+    gulp.watch([
+        "./src/md/index.js",
+        "./src/**/*.js",
+        "!./src/syntax/**/*.js",
+        "!./src/syntax/dialects/**/*.js",
+        "!./src/older/**/*.js"
+    ], ["seed"]);
+
+    gulp.watch([
+        "./src/dialects/*.json",
+        "./src/dialectBuilder/template.swig",
+        "./src/syntax/*.js"
+    ], ["dialects"]);
+
+    gulp.watch([
+        "./release/Md-seed.js",
+        "./release/dialects/*.js"
+    ], ["full"]);
 });

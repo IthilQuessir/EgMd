@@ -1,5 +1,7 @@
 Md.extend("syntax/block", function(require) {
 
+    var Node = require("node");
+
     function Block() {
         this.lib = [];
     }
@@ -15,17 +17,22 @@ Md.extend("syntax/block", function(require) {
             stack = null,
             i,
             len = this.lib.length,
-            rs = null;
+            rs = null,
+            node = new Node();
 
 
         do {
 
-            stack = [];
+            console.log("[Block parse1] ", str, queue);
             str = queue.pop();
+            console.log("[Block parse2] ", str, queue);
 
             for (i = 0; i < len; i++) {
 
+                stack = [];
                 rs = this.lib[i].parse(str, stack);
+
+                console.log("[Block parse] try result ", rs, stack );
 
                 if (stack.length) {
                     stack.reverse();
@@ -43,33 +50,8 @@ Md.extend("syntax/block", function(require) {
 
         } while (queue.length);
 
-        while (++i < len) {
 
-            grammar = new expendGrammars[i]();
-            stack = [];
-
-            rs = grammar.parse(str, stack);
-
-            if (stack.length && rs === null) {
-
-                stack.reverse();
-                str = stack.pop();
-                queue.push.apply(queue, stack);
-
-                continue;
-            } else if (stack.length) {
-
-                stack.reverse();
-                queue.push.apply(queue, stack);
-
-                break;
-            } else if (rs !== null) {
-                break;
-            }
-
-        }
-
-        return rs;
+        return node;
 
     };
 
@@ -81,6 +63,8 @@ Md.extend("syntax/block", function(require) {
 });
 
 Md.extend("syntax/inline", function(require) {
+
+    var Node = require("node");
 
     function Inline() {
         this.lib = [];
@@ -100,13 +84,15 @@ Md.extend("syntax/inline", function(require) {
             rs = null,
             node = new Node();
 
+            console.log("[Inline parse]", str);
+
         do {
 
-            stack = [];
             str = queue.pop();
 
             for (i = 0; i < len; i++) {
 
+                stack = [];
                 rs = this.lib[i].parse(str, stack);
 
                 if (stack.length) {
@@ -130,7 +116,9 @@ Md.extend("syntax/inline", function(require) {
     return Inline;
 });
 
-Md.extend("syntax/combin-block", function (require) {
+Md.extend("syntax/combin-block", function(require) {
+
+    var Node = require("node");
 
     function CombinBlock(dialect) {
 
@@ -139,21 +127,30 @@ Md.extend("syntax/combin-block", function (require) {
 
     }
 
-    CombinBlock.prototype.parse = function (str) {
+    CombinBlock.prototype.parse = function(str) {
 
-        var pattern = /($|\n(?:\s*\n|\s*$)+)/,
-            queue = str.split(pattern);
+        var pattern = /(?:^\s*\n)/m,
+            queue = str.split(/(?:^\s*\n)/m),
+            that = this;
 
-        // 匹配起始空白行
-        // reg = /^(\s*\n)/.exec(str);
-        // if ( reg !== null) {
-        //     pattern.lastIndex = reg[0].length;
-        // }
-
-        console.log(queue);
+        console.log("[CombinBlock parse] ", queue, queue.length);
 
         if (queue.length > 1) {
-            // TODO 解析模块
+
+            return (function() {
+
+                var node = new Node(),
+                    i = 0,
+                    len = queue.length;
+
+                for (; i < len; i++) {
+                    node.appendChild(that.block.parse(queue[i]));
+                }
+
+                return node;
+
+            }());
+
         } else {
             return null;
         }
@@ -193,7 +190,7 @@ Md.extend("syntax/atx-header", function (require) {
         var reg = str.match(pattern);
         var header = new Node("h" + reg[1].length);
 
-        header.appendChild(new TextNode(reg[2]));
+        header.appendChild(this.inline.parse(reg[2]));
 
         if (reg[0].length < str.length) {
             // 将没有解析的尾部放回队列
@@ -206,7 +203,50 @@ Md.extend("syntax/atx-header", function (require) {
     return AtxHeader;
 });
 
+Md.extend("syntax/setext-header", function(require) {
+
+    var Node = require("node");
+
+    function SetextHeader(dialect) {
+        block = dialect.getSyntax("block");
+        block.extend(this);
+
+        this.inline = dialect.getSyntax("inline");
+    }
+
+    SetextHeader.prototype.parse = function(str, queue) {
+
+        var pattern = /^(.*)\n([-=])\2\2+(?:\n|$)/,
+            reg = null,
+            level = "",
+            header = null,
+            inline = null;
+
+        if (!pattern.test(str)) {
+            return null;
+        }
+
+        reg = str.match(pattern);
+
+        level = (reg[2] === "=") ? "h1" : "h2";
+        header = new Node(level);
+
+        header.appendChild(this.inline.parse(reg[1]));
+
+        // 字符串尾部还有其余内容，则将其放回队列头部
+        if (reg[0].length < str.length) {
+            queue.push(str.substr(reg[0].length));
+        }
+
+        return header;
+    };
+
+    return SetextHeader;
+});
+
 Md.extend("syntax/horiz-line", function(require) {
+
+    var Node = require("node");
 
     var className = {
         dash: "dash",
@@ -220,6 +260,9 @@ Md.extend("syntax/horiz-line", function(require) {
     }
 
     HorizLine.prototype.parse = function(str, queue) {
+
+        var a = {s: str};
+        console.log("[HorizLine parse] " , a);
 
         var pattern = /^(?:([\s\S]*?)\n)?[ \t]*(([-_*])(?:[ \t]*\3){2,})[ \t]*(?:\n([\s\S]*))?$/,
             reg = str.match(pattern),
@@ -266,11 +309,37 @@ Md.extend("syntax/horiz-line", function(require) {
     return HorizLine;
 });
 
+Md.extend("syntax/paragraph", function (require) {
+
+    var Node = require("node");
+
+    function Paragraph(dialect) {
+        block = dialect.getSyntax("block");
+        block.extend(this);
+
+        this.inline = dialect.getSyntax("inline");
+    }
+
+    Paragraph.prototype.parse = function(str) {
+
+        var node = new Node("p");
+
+        node.appendChild(this.inline.parse(str));
+
+        return node;
+    };
+
+    return Paragraph;
+
+});
+
 Md.extend("syntax/escaped", function(require) {
 
+    var TextNode = require("text-node");
+
     function Escaped(dialect) {
-        var block = dialect.getSyntax("block");
-        block.extend(this);
+        var inline = dialect.getSyntax("inline");
+        inline.extend(this);
     }
 
     Escaped.prototype.parse = function(str, queue) {
@@ -303,7 +372,10 @@ Md.extend("syntax/inline-plain-text", function(require) {
 
     var TextNode = require("text-node");
 
-    function PlainText() {}
+    function PlainText(dialect) {
+        var inline = dialect.getSyntax("inline");
+        inline.extend(this);
+    }
 
     PlainText.prototype.parse = function(str) {
         return new TextNode(str);
@@ -317,7 +389,7 @@ Md.extend("dialects/office", function(require) {
 
     var DialectBuilder = require("dialect-builder");
 
-    return new dialectBuilder()
+    return new DialectBuilder()
         .setSyntax([
             
 
@@ -337,11 +409,15 @@ Md.extend("dialects/office", function(require) {
 
             
 
+                "setext-header" ,
+
+            
+
                 "horiz-line" ,
 
             
 
-                "pragraph" ,
+                "paragraph" ,
 
             
 

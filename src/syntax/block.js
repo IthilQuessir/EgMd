@@ -1,5 +1,7 @@
 Md.extend("syntax/block", function(require) {
 
+    var Node = require("node");
+
     function Block() {
         this.lib = [];
     }
@@ -15,17 +17,22 @@ Md.extend("syntax/block", function(require) {
             stack = null,
             i,
             len = this.lib.length,
-            rs = null;
+            rs = null,
+            node = new Node();
 
 
         do {
 
-            stack = [];
+            console.log("[Block parse1] ", str, queue);
             str = queue.pop();
+            console.log("[Block parse2] ", str, queue);
 
             for (i = 0; i < len; i++) {
 
+                stack = [];
                 rs = this.lib[i].parse(str, stack);
+
+                console.log("[Block parse] try result ", rs, stack );
 
                 if (stack.length) {
                     stack.reverse();
@@ -43,33 +50,8 @@ Md.extend("syntax/block", function(require) {
 
         } while (queue.length);
 
-        while (++i < len) {
 
-            grammar = new expendGrammars[i]();
-            stack = [];
-
-            rs = grammar.parse(str, stack);
-
-            if (stack.length && rs === null) {
-
-                stack.reverse();
-                str = stack.pop();
-                queue.push.apply(queue, stack);
-
-                continue;
-            } else if (stack.length) {
-
-                stack.reverse();
-                queue.push.apply(queue, stack);
-
-                break;
-            } else if (rs !== null) {
-                break;
-            }
-
-        }
-
-        return rs;
+        return node;
 
     };
 

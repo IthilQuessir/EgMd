@@ -4,7 +4,7 @@ Md.extend("dialects/{{dialect.name}}", function(require) {
 
     var DialectBuilder = require("dialect-builder");
 
-    return new dialectBuilder()
+    return new DialectBuilder()
         .setSyntax([
             {% for name in dialect.syntax %}
 

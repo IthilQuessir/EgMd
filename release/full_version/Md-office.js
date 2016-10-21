@@ -15,17 +15,12 @@
             if (path[i] in target) {
                 target = target[path[i]];
             } else {
-                throw new Error("[Md require] Cannot find the module;\nThe url is " + url);
+                throw new Error("[Md require] Cannot find module: " + url);
             }
 
         }
 
-
-        if (path in modules) {
-            return modules[name];
-        } else {
-            throw new Error("CANNOT ");
-        }
+        return target;
 
     }
 
@@ -54,23 +49,46 @@
         if (theModule) {
             target[path[i]] = theModule;
         } else {
-            throw new Error("[Md extend] the module \"" + path[i] + "\"" + "had existed");
+            throw new Error("[Md extend] Unexpected return of the module \"" + path[i] + "\"");
         }
     }
 
     function Md(str, options) {
 
-        var dialect = new Dialect(),
-            nodeTree = dialect.parse(str),
-            domTree = nodeTree.toHtml();
+        var dialects = require("dialects"),
+            dialect = null,
+            key;
 
-        this.options = options;
+        options = options || {};
 
-        return domTree;
+        /**
+         * 若配置的解析器不存在或者未配置
+         * 则随意选择一个解析器作为默认解析器进行解析
+         */
+        if (options.dialect && options.dialect in dialects) {
+            dialect = dialects[options.dialect];
+        } else {
+            for (key in dialects) {
+                dialect = dialects[key];
+                break;
+            }
+        }
+
+        if (!dialect) {
+            throw new Error("[Md] Plese use full_version or include dialect module\n" +
+                "请使用完整版或者 Md-seed.js + dialect模块配合使用。" +
+                "仅单独使用Md-seed.js是无法运行的");
+        }
+
+        str = str
+            .replace(/^\s*\n/, "")
+            .replace(/\s*$/, "");
+
+        return dialect.parse(str).toHtml();
 
     }
 
-    Md.prototype.extend = extend;
+    Md.extend = extend;
 
     global.Md = Md;
 
@@ -131,7 +149,7 @@ Md.extend("dialect-builder", function (require) {
     Dialect.prototype.parse = function (str) {
 
         if ("block" in this.syntaxLib) {
-            this.syntaxLib.block(str);
+            return this.syntaxLib.block.parse(str);
         } else {
             throw new Error("[Dialect parse] Dialect must has extend block module");
         }
@@ -153,15 +171,17 @@ Md.extend("dialect-builder", function (require) {
 
     };
 
-    function dialectBuilder() {
+    function DialectBuilder() {
         this.list = [];
     }
 
-    dialectBuilder.prototype.addSyntax = function (arr) {
+    DialectBuilder.prototype.setSyntax = function (arr) {
         this.list.push.apply(this.list, arr);
+
+        return this;
     };
 
-    dialectBuilder.prototype.build = function () {
+    DialectBuilder.prototype.build = function () {
 
         var i = 0,
             len = this.list.length,
@@ -170,13 +190,17 @@ Md.extend("dialect-builder", function (require) {
 
         for (; i < len; i ++) {
 
-            syntax = require(this.list[i]);
+            syntax = require("syntax/" + this.list[i]);
 
             dialect.extend(this.list[i], syntax);
 
         }
 
+        return dialect;
+
     };
+
+    return DialectBuilder;
 
 });
 
@@ -255,6 +279,8 @@ Md.extend("text-node", function(require) {
 
 Md.extend("syntax/block", function(require) {
 
+    var Node = require("node");
+
     function Block() {
         this.lib = [];
     }
@@ -270,17 +296,22 @@ Md.extend("syntax/block", function(require) {
             stack = null,
             i,
             len = this.lib.length,
-            rs = null;
+            rs = null,
+            node = new Node();
 
 
         do {
 
-            stack = [];
+            console.log("[Block parse1] ", str, queue);
             str = queue.pop();
+            console.log("[Block parse2] ", str, queue);
 
             for (i = 0; i < len; i++) {
 
+                stack = [];
                 rs = this.lib[i].parse(str, stack);
+
+                console.log("[Block parse] try result ", rs, stack );
 
                 if (stack.length) {
                     stack.reverse();
@@ -298,33 +329,8 @@ Md.extend("syntax/block", function(require) {
 
         } while (queue.length);
 
-        while (++i < len) {
 
-            grammar = new expendGrammars[i]();
-            stack = [];
-
-            rs = grammar.parse(str, stack);
-
-            if (stack.length && rs === null) {
-
-                stack.reverse();
-                str = stack.pop();
-                queue.push.apply(queue, stack);
-
-                continue;
-            } else if (stack.length) {
-
-                stack.reverse();
-                queue.push.apply(queue, stack);
-
-                break;
-            } else if (rs !== null) {
-                break;
-            }
-
-        }
-
-        return rs;
+        return node;
 
     };
 
@@ -336,6 +342,8 @@ Md.extend("syntax/block", function(require) {
 });
 
 Md.extend("syntax/inline", function(require) {
+
+    var Node = require("node");
 
     function Inline() {
         this.lib = [];
@@ -355,13 +363,15 @@ Md.extend("syntax/inline", function(require) {
             rs = null,
             node = new Node();
 
+            console.log("[Inline parse]", str);
+
         do {
 
-            stack = [];
             str = queue.pop();
 
             for (i = 0; i < len; i++) {
 
+                stack = [];
                 rs = this.lib[i].parse(str, stack);
 
                 if (stack.length) {
@@ -385,7 +395,9 @@ Md.extend("syntax/inline", function(require) {
     return Inline;
 });
 
-Md.extend("syntax/combin-block", function (require) {
+Md.extend("syntax/combin-block", function(require) {
+
+    var Node = require("node");
 
     function CombinBlock(dialect) {
 
@@ -394,21 +406,30 @@ Md.extend("syntax/combin-block", function (require) {
 
     }
 
-    CombinBlock.prototype.parse = function (str) {
+    CombinBlock.prototype.parse = function(str) {
 
-        var pattern = /($|\n(?:\s*\n|\s*$)+)/,
-            queue = str.split(pattern);
+        var pattern = /(?:^\s*\n)/m,
+            queue = str.split(/(?:^\s*\n)/m),
+            that = this;
 
-        // 匹配起始空白行
-        // reg = /^(\s*\n)/.exec(str);
-        // if ( reg !== null) {
-        //     pattern.lastIndex = reg[0].length;
-        // }
-
-        console.log(queue);
+        console.log("[CombinBlock parse] ", queue, queue.length);
 
         if (queue.length > 1) {
-            // TODO 解析模块
+
+            return (function() {
+
+                var node = new Node(),
+                    i = 0,
+                    len = queue.length;
+
+                for (; i < len; i++) {
+                    node.appendChild(that.block.parse(queue[i]));
+                }
+
+                return node;
+
+            }());
+
         } else {
             return null;
         }
@@ -448,7 +469,7 @@ Md.extend("syntax/atx-header", function (require) {
         var reg = str.match(pattern);
         var header = new Node("h" + reg[1].length);
 
-        header.appendChild(new TextNode(reg[2]));
+        header.appendChild(this.inline.parse(reg[2]));
 
         if (reg[0].length < str.length) {
             // 将没有解析的尾部放回队列
@@ -461,7 +482,50 @@ Md.extend("syntax/atx-header", function (require) {
     return AtxHeader;
 });
 
+Md.extend("syntax/setext-header", function(require) {
+
+    var Node = require("node");
+
+    function SetextHeader(dialect) {
+        block = dialect.getSyntax("block");
+        block.extend(this);
+
+        this.inline = dialect.getSyntax("inline");
+    }
+
+    SetextHeader.prototype.parse = function(str, queue) {
+
+        var pattern = /^(.*)\n([-=])\2\2+(?:\n|$)/,
+            reg = null,
+            level = "",
+            header = null,
+            inline = null;
+
+        if (!pattern.test(str)) {
+            return null;
+        }
+
+        reg = str.match(pattern);
+
+        level = (reg[2] === "=") ? "h1" : "h2";
+        header = new Node(level);
+
+        header.appendChild(this.inline.parse(reg[1]));
+
+        // 字符串尾部还有其余内容，则将其放回队列头部
+        if (reg[0].length < str.length) {
+            queue.push(str.substr(reg[0].length));
+        }
+
+        return header;
+    };
+
+    return SetextHeader;
+});
+
 Md.extend("syntax/horiz-line", function(require) {
+
+    var Node = require("node");
 
     var className = {
         dash: "dash",
@@ -475,6 +539,9 @@ Md.extend("syntax/horiz-line", function(require) {
     }
 
     HorizLine.prototype.parse = function(str, queue) {
+
+        var a = {s: str};
+        console.log("[HorizLine parse] " , a);
 
         var pattern = /^(?:([\s\S]*?)\n)?[ \t]*(([-_*])(?:[ \t]*\3){2,})[ \t]*(?:\n([\s\S]*))?$/,
             reg = str.match(pattern),
@@ -521,11 +588,37 @@ Md.extend("syntax/horiz-line", function(require) {
     return HorizLine;
 });
 
+Md.extend("syntax/paragraph", function (require) {
+
+    var Node = require("node");
+
+    function Paragraph(dialect) {
+        block = dialect.getSyntax("block");
+        block.extend(this);
+
+        this.inline = dialect.getSyntax("inline");
+    }
+
+    Paragraph.prototype.parse = function(str) {
+
+        var node = new Node("p");
+
+        node.appendChild(this.inline.parse(str));
+
+        return node;
+    };
+
+    return Paragraph;
+
+});
+
 Md.extend("syntax/escaped", function(require) {
 
+    var TextNode = require("text-node");
+
     function Escaped(dialect) {
-        var block = dialect.getSyntax("block");
-        block.extend(this);
+        var inline = dialect.getSyntax("inline");
+        inline.extend(this);
     }
 
     Escaped.prototype.parse = function(str, queue) {
@@ -558,7 +651,10 @@ Md.extend("syntax/inline-plain-text", function(require) {
 
     var TextNode = require("text-node");
 
-    function PlainText() {}
+    function PlainText(dialect) {
+        var inline = dialect.getSyntax("inline");
+        inline.extend(this);
+    }
 
     PlainText.prototype.parse = function(str) {
         return new TextNode(str);
@@ -572,7 +668,7 @@ Md.extend("dialects/office", function(require) {
 
     var DialectBuilder = require("dialect-builder");
 
-    return new dialectBuilder()
+    return new DialectBuilder()
         .setSyntax([
             
 
@@ -592,11 +688,15 @@ Md.extend("dialects/office", function(require) {
 
             
 
+                "setext-header" ,
+
+            
+
                 "horiz-line" ,
 
             
 
-                "pragraph" ,
+                "paragraph" ,
 
             
 

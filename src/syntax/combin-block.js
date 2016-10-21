@@ -1,4 +1,6 @@
-Md.extend("syntax/combin-block", function (require) {
+Md.extend("syntax/combin-block", function(require) {
+
+    var Node = require("node");
 
     function CombinBlock(dialect) {
 
@@ -7,21 +9,30 @@ Md.extend("syntax/combin-block", function (require) {
 
     }
 
-    CombinBlock.prototype.parse = function (str) {
+    CombinBlock.prototype.parse = function(str) {
 
-        var pattern = /($|\n(?:\s*\n|\s*$)+)/,
-            queue = str.split(pattern);
+        var pattern = /(?:^\s*\n)/m,
+            queue = str.split(/(?:^\s*\n)/m),
+            that = this;
 
-        // 匹配起始空白行
-        // reg = /^(\s*\n)/.exec(str);
-        // if ( reg !== null) {
-        //     pattern.lastIndex = reg[0].length;
-        // }
-
-        console.log(queue);
+        console.log("[CombinBlock parse] ", queue, queue.length);
 
         if (queue.length > 1) {
-            // TODO 解析模块
+
+            return (function() {
+
+                var node = new Node(),
+                    i = 0,
+                    len = queue.length;
+
+                for (; i < len; i++) {
+                    node.appendChild(that.block.parse(queue[i]));
+                }
+
+                return node;
+
+            }());
+
         } else {
             return null;
         }
