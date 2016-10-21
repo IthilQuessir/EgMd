@@ -15,8 +15,6 @@ Md.extend("syntax/combin-block", function(require) {
             queue = str.split(/(?:^\s*\n)/m),
             that = this;
 
-        console.log("[CombinBlock parse] ", queue, queue.length);
-
         if (queue.length > 1) {
 
             return (function() {

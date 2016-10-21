@@ -20,8 +20,6 @@ Md.extend("syntax/inline", function(require) {
             rs = null,
             node = new Node();
 
-            console.log("[Inline parse]", str);
-
         do {
 
             str = queue.pop();

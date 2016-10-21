@@ -20,19 +20,14 @@ Md.extend("syntax/block", function(require) {
             rs = null,
             node = new Node();
 
-
         do {
 
-            console.log("[Block parse1] ", str, queue);
             str = queue.pop();
-            console.log("[Block parse2] ", str, queue);
 
             for (i = 0; i < len; i++) {
 
                 stack = [];
                 rs = this.lib[i].parse(str, stack);
-
-                console.log("[Block parse] try result ", rs, stack );
 
                 if (stack.length) {
                     stack.reverse();
@@ -84,8 +79,6 @@ Md.extend("syntax/inline", function(require) {
             rs = null,
             node = new Node();
 
-            console.log("[Inline parse]", str);
-
         do {
 
             str = queue.pop();
@@ -132,8 +125,6 @@ Md.extend("syntax/combin-block", function(require) {
         var pattern = /(?:^\s*\n)/m,
             queue = str.split(/(?:^\s*\n)/m),
             that = this;
-
-        console.log("[CombinBlock parse] ", queue, queue.length);
 
         if (queue.length > 1) {
 
@@ -262,7 +253,6 @@ Md.extend("syntax/horiz-line", function(require) {
     HorizLine.prototype.parse = function(str, queue) {
 
         var a = {s: str};
-        console.log("[HorizLine parse] " , a);
 
         var pattern = /^(?:([\s\S]*?)\n)?[ \t]*(([-_*])(?:[ \t]*\3){2,})[ \t]*(?:\n([\s\S]*))?$/,
             reg = str.match(pattern),

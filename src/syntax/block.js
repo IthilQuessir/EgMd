@@ -20,19 +20,14 @@ Md.extend("syntax/block", function(require) {
             rs = null,
             node = new Node();
 
-
         do {
 
-            console.log("[Block parse1] ", str, queue);
             str = queue.pop();
-            console.log("[Block parse2] ", str, queue);
 
             for (i = 0; i < len; i++) {
 
                 stack = [];
                 rs = this.lib[i].parse(str, stack);
-
-                console.log("[Block parse] try result ", rs, stack );
 
                 if (stack.length) {
                     stack.reverse();

@@ -4,12 +4,13 @@ var str = textarea.value;
 
 
 function translate(str) {
+    article.innerHTML = "";
     article.appendChild(new Md(str));
 }
 
-textarea.onekeydown = function() {
+textarea.addEventListener("input", function() {
     str = textarea.value;
     translate(str);
-};
+});
 
 translate(str);

@@ -11,7 +11,7 @@ gulp.task("demo", function() {
         .pipe(plugins.webserver({
             livereload: true,
             directoryListing: true,
-            open: "demo"
+            open: "demo/index.html"
         }));
 
 });
