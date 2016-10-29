@@ -8,6 +8,8 @@
         "combin-block",
         "atx-header",
         "setext-header",
+        "list",
+        "code",
         "horiz-line",
         "paragraph",
 
