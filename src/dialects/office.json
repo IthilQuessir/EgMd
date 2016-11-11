@@ -6,6 +6,7 @@
         "inline",
 
         "combin-block",
+        "blockquote",
         "atx-header",
         "setext-header",
         "list",
