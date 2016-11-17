@@ -9,6 +9,7 @@
         "blockquote",
         "atx-header",
         "setext-header",
+        "table",
         "list",
         "code",
         "horiz-line",
