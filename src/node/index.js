@@ -14,7 +14,7 @@ Md.extend("node", function(require) {
         if (typeof value === "undefined") {
             return this.__attr__.get(name);
         } else {
-            return this.__attr__.add(name, value);
+            this.__attr__.add(name, value);
         }
 
         return this;
