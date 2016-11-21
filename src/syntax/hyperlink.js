@@ -27,13 +27,13 @@ Md.extend("syntax/hyperlink", function(require) {
             queue.push(source.substr(reg[0].length));
         }
 
-        console.log(reg);
-
-
         node = new Node("a");
         node.appendChild(new TextNode(reg[1]));
-        node.attr("href", reg[2])
-            .attr("title", reg[4]);
+        node.attr("href", reg[2]);
+
+        if (reg[4]) {
+            node.attr("title", reg[4]);
+        }
 
         return node;
     };
