@@ -17,6 +17,7 @@
 
         "image",
         "hyperlink",
+        "autolink",
         "escaped",
         "inline-plain-text"
     ]
