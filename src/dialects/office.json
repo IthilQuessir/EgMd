@@ -15,6 +15,7 @@
         "horiz-line",
         "paragraph",
 
+        "image",
         "hyperlink",
         "escaped",
         "inline-plain-text"
