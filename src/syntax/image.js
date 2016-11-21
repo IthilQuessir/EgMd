@@ -1,17 +1,17 @@
-Md.extend("syntax/hyperlink", function(require) {
+Md.extend("syntax/image", function(require) {
 
-    var Node = require("node"),
-        TextNode = require("text-node");
+    var Node = require("node");
 
-    function Hyperlink(dialect) {
+    function Image(dialect) {
+
         var inline = dialect.getSyntax("inline");
         inline.extend(this);
 
     }
 
-    Hyperlink.prototype.parse = function(source, queue) {
+    Image.prototype.parse = function(source, queue) {
 
-        var pattern = /\[\s*(\S*)\s*\]\(\s*(\S*)\s*(?:(["'])(\S*)\3)?\)/,
+        var pattern = /!\[\s*(\S*)\s*\]\(\s*(\S*)\s*(?:(["'])(\S*)\3)?\)/,
             reg = source.match(pattern),
             node = null;
 
@@ -27,16 +27,18 @@ Md.extend("syntax/hyperlink", function(require) {
             queue.push(source.substr(reg[0].length));
         }
 
-        node = new Node("a");
-        node.appendChild(new TextNode(reg[1]));
-        node.attr("href", reg[2]);
+        node = new Node("img");
+
+        node.attr("alt", reg[1])
+            .attr("src", reg[2]);
 
         if (reg[4]) {
-            node.attr("title", reg[4]);
+            node.attr("title", "reg[4]");
         }
 
         return node;
+
     };
 
-    return Hyperlink;
+    return Image;
 });
