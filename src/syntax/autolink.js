@@ -9,6 +9,7 @@ Md.extend("syntax/autolink", function(require) {
         inline.extend(this);
     }
 
+    // XXX 尚不能自动获取目标网址的title
     AutoLink.prototype.parse = function(source, queue) {
 
         var pattern = /<(?:((https?|ftp|mailto):[^>]+)|(.*?@.*?\.[a-zA-Z]+))>/,
