@@ -151,6 +151,47 @@ Md.extend("syntax/combin-block", function(require) {
     return CombinBlock;
 });
 
+Md.extend("syntax/blockquote", function(require) {
+
+    var Node = require("node");
+
+    function Blockquote(dialect) {
+
+        this.block = dialect.getSyntax("block");
+        this.block.extend(this);
+
+    }
+
+    Blockquote.prototype.parse = function(source, queue) {
+
+        var reg = source.match(/^(?:>\s*.*[\n$])+/m),
+            str = null;
+
+        if (!reg) {
+            return null;
+        } else if (!!reg.index) {
+
+            queue.push(source.substring(0, reg.index));
+            queue.push(reg[0]);
+            queue.push(source.substr(reg.index + reg[0].length));
+
+            return null;
+
+        } else if (reg[0].length < source.length) {
+            queue.push(source.substr(reg[0].length));
+        }
+
+        str = reg[0].replace(/^>[ \f\r\t\v]*/mg, "");
+
+        return new Node("blockquote")
+            .appendChild(this.block.parse(str));
+
+    };
+
+    return Blockquote;
+
+});
+
 /**
  * 语法事例:
  * # 标题
@@ -233,6 +274,132 @@ Md.extend("syntax/setext-header", function(require) {
     };
 
     return SetextHeader;
+});
+
+Md.extend("syntax/table", function(require) {
+
+    var Node = require("node");
+
+    function Table(dialect) {
+
+        var block = dialect.getSyntax("block");
+        block.extend(this);
+
+        this.inline = dialect.getSyntax("inline");
+    }
+
+    Table.prototype.parse = function(source, queue) {
+
+        var pattern = /^ {0,3}((?:(?:\|\s*\S[^\|\n]*)+\|?)|(?:(?:\|\s*)?\S[^\|\n]*(?:(?:\|[^\|\n]+)+\|?|\|)))\n {0,3}((?:(?:\|\s*(?::\s*)?-[-\s]*(?::\s*)?)+\|?)|(?:(?:\|\s*)?(?::\s*)?-[-\s]*(?::\s*)?(?:(?:\|(?::\s*)?-[-\s]*(?::\s*)?)+\|?|\|)))\n((?: {0,3}(?:(?:(?:\|\s*\S[^\|\n]*)+\|?)|(?:(?:\|\s*)?\S[^\|\n]*(?:(?:\|[^\|\n]+)+\|?|\|)))(?:\n|$))+)/,
+            reg = source.match(pattern),
+            title, align, ctn;
+
+        if (!reg) {
+            return null;
+        }
+
+        function cleanBothEnds(str) {
+            return str.replace(/^\s*\|/, "")
+                .replace(/\s*$/, "")
+                .replace(/\|$/, "");
+        }
+
+        title = cleanBothEnds(reg[1]).split("|");
+
+        align = cleanBothEnds(reg[2]).split("|").map(function(a) {
+
+            var reg = a.match(/\s*(:)?[-\s]+(:)?/);
+
+            if (!!reg[1] && !!reg[2]) {
+                // center
+                return "center";
+
+            } else if (!!reg[1]) {
+                // left
+                return "left";
+
+            } else if (!!reg[2]) {
+                // right
+                return "right";
+
+            } else {
+                return null;
+            }
+
+        });
+
+        ctn = cleanBothEnds(reg[3]).split("\n").map(function(n) {
+            return cleanBothEnds(n).split("|");
+        });
+
+        return buildTable.call(this, title, align, ctn);
+
+    };
+
+    function buildTable(title, align, ctn) {
+
+        var table = new Node("table");
+
+        table.appendChild(buildTHead.call(this, title, align))
+            .appendChild(buildTBody.call(this, ctn, align));
+
+        return table;
+
+    }
+
+    function buildTHead(title, align) {
+
+        var tr = new Node("tr"),
+            txt = null;
+
+        title.forEach(function(t, i) {
+
+            txt = this.inline.parse(t);
+            txt = new Node("th").appendChild(txt);
+            txt.attr("align", align[i]);
+
+            if (align[i]) {
+                txt.attr("align", align[i]);
+            }
+
+            tr.appendChild(txt);
+
+        }, this);
+
+        return new Node("thead").appendChild(tr);
+    }
+
+    function buildTBody(ctn, align) {
+
+        var tr = new Node("tr"),
+            txt = null,
+            tbody = new Node("tbody");
+
+        ctn.forEach(function(row) {
+
+            tr = new Node("tr");
+
+            row.forEach(function(cell, i) {
+                txt = new Node("td").appendChild(this.inline.parse(cell));
+
+                if (align[i]) {
+                    txt.attr("align", align[i]);
+                }
+
+                tr.appendChild(txt);
+            }, this);
+
+            tbody.appendChild(tr);
+
+        }, this);
+
+        return tbody;
+
+    }
+
+
+
+    return Table;
 });
 
 /**
@@ -508,6 +675,7 @@ Md.extend("syntax/paragraph", function (require) {
         this.inline = dialect.getSyntax("inline");
     }
 
+    // FIXME 最后一个\n符号可能被写入到内容中
     Paragraph.prototype.parse = function(str) {
 
         var node = new Node("p");
@@ -519,6 +687,143 @@ Md.extend("syntax/paragraph", function (require) {
 
     return Paragraph;
 
+});
+
+Md.extend("syntax/image", function(require) {
+
+    var Node = require("node");
+
+    function Image(dialect) {
+
+        var inline = dialect.getSyntax("inline");
+        inline.extend(this);
+
+    }
+
+    Image.prototype.parse = function(source, queue) {
+
+        var pattern = /!\[\s*(\S*)\s*\]\(\s*(\S*)\s*(?:(["'])(\S*)\3)?\)/,
+            reg = source.match(pattern),
+            node = null;
+
+        if (!reg) {
+            return null;
+        } else if (reg.index) {
+            queue.push(source.substring(0, reg.index));
+            queue.push(reg[0]);
+            queue.push(source.substr(reg.index + reg[0].length));
+
+            return null;
+        } else if (reg[0].length < source.length) {
+            queue.push(source.substr(reg[0].length));
+        }
+
+        node = new Node("img");
+
+        node.attr("alt", reg[1])
+            .attr("src", reg[2]);
+
+        if (reg[4]) {
+            node.attr("title", "reg[4]");
+        }
+
+        return node;
+
+    };
+
+    return Image;
+});
+
+Md.extend("syntax/hyperlink", function(require) {
+
+    var Node = require("node"),
+        TextNode = require("text-node");
+
+    function Hyperlink(dialect) {
+        var inline = dialect.getSyntax("inline");
+        inline.extend(this);
+
+    }
+
+    Hyperlink.prototype.parse = function(source, queue) {
+
+        var pattern = /\[\s*(\S*)\s*\]\(\s*(\S*)\s*(?:(["'])(\S*)\3)?\)/,
+            reg = source.match(pattern),
+            node = null;
+
+        if (!reg) {
+            return null;
+        } else if (reg.index) {
+            queue.push(source.substring(0, reg.index));
+            queue.push(reg[0]);
+            queue.push(source.substr(reg.index + reg[0].length));
+
+            return null;
+        } else if (reg[0].length < source.length) {
+            queue.push(source.substr(reg[0].length));
+        }
+
+        node = new Node("a");
+        node.appendChild(new TextNode(reg[1]));
+        node.attr("href", reg[2]);
+
+        if (reg[4]) {
+            node.attr("title", reg[4]);
+        }
+
+        return node;
+    };
+
+    return Hyperlink;
+});
+
+Md.extend("syntax/autolink", function(require) {
+
+    var Node = require("node"),
+        TextNode = require("text-node");
+
+    function AutoLink(dialect) {
+
+        var inline = dialect.getSyntax("inline");
+        inline.extend(this);
+    }
+
+    AutoLink.prototype.parse = function(source, queue) {
+
+        var pattern = /<(?:((https?|ftp|mailto):[^>]+)|(.*?@.*?\.[a-zA-Z]+))>/,
+            reg = source.match(pattern),
+            node = null;
+
+        if (!reg) {
+            return null;
+        } else if (reg.index) {
+            queue.push(source.substring(0, reg.index));
+            queue.push(reg[0]);
+            queue.push(source.substr(reg.index + reg[0].length));
+
+            return null;
+        } else if (reg[0].length < source.length) {
+            queue.push(source.substr(reg[0].length));
+        }
+
+        node = new Node("a");
+
+        if (reg[3]) {
+            node.attr("href", "mailto:" + reg[3]);
+            node.appendChild(new TextNode(reg[3]));
+        } else if (reg[2] === "mailto") {
+            node.attr("href", encodeURI(reg[1]));
+            node.appendChild(new TextNode(reg[1].substr("mailto:".length)));
+        } else {
+            node.attr("href", encodeURI(reg[1]));
+            node.appendChild(new TextNode(reg[1]));
+        }
+
+        return node;
+
+    };
+
+    return AutoLink;
 });
 
 Md.extend("syntax/escaped", function(require) {
@@ -593,11 +898,19 @@ Md.extend("dialects/office", function(require) {
 
             
 
+                "blockquote" ,
+
+            
+
                 "atx-header" ,
 
             
 
                 "setext-header" ,
+
+            
+
+                "table" ,
 
             
 
@@ -614,6 +927,18 @@ Md.extend("dialects/office", function(require) {
             
 
                 "paragraph" ,
+
+            
+
+                "image" ,
+
+            
+
+                "hyperlink" ,
+
+            
+
+                "autolink" ,
 
             
 

@@ -6,13 +6,18 @@
         "inline",
 
         "combin-block",
+        "blockquote",
         "atx-header",
         "setext-header",
+        "table",
         "list",
         "code",
         "horiz-line",
         "paragraph",
 
+        "image",
+        "hyperlink",
+        "autolink",
         "escaped",
         "inline-plain-text"
     ]
