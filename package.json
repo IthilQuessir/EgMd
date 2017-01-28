@@ -1,6 +1,6 @@
 {
   "name": "md",
-  "version": "1.0.0",
+  "version": "3.0.1",
   "description": "used to build project",
   "main": "./dist/dialects/office.js",
   "directories": {
