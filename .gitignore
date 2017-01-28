@@ -4,4 +4,4 @@ config.codekit
 .codekit-cache
 **／.DS_Store
 node_modules
-npm-debug.log
+npm-debug.log*

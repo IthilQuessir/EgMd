@@ -106,7 +106,8 @@ var ElNode = function () {
         key: "toHTML",
         value: function toHTML() {
             var str = "",
-                name = this.tagName;
+                name = this.tagName,
+                attr = "";
 
             var _iteratorNormalCompletion2 = true;
             var _didIteratorError2 = false;
@@ -133,8 +134,12 @@ var ElNode = function () {
                 }
             }
 
+            this.__attr__.forEach(function (key, value) {
+                attr += " " + key + "=" + "\"" + value + "\"";
+            });
+
             if (name !== "") {
-                str = "<" + name + ">" + str + "</" + name + ">";
+                str = "<" + name + attr + ">" + str + "</" + name + ">";
             }
 
             return str;

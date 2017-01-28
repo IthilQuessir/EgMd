@@ -13,12 +13,12 @@ str = "#Introduction"
 ```
 el = document.getElementById("article");
 // toElNode 会返回一个通过createElementNode 创建的elemnet对象
-var elnode = new Md(str).toElement();
+var elnode = new Md().parse(str).toElement();
 el.appendChild(elnode);
 ```
 
 ### 方案二：取得字符串，利用其他工具插入html
-
+在栗子使用[Vue](https://cn.vuejs.org/)
 ```
 /** toHTML会返回拼接的字符串
  * 本例中返回字符串 "<h1>Introduction</h1>"
@@ -26,7 +26,7 @@ el.appendChild(elnode);
 new Vue({
     el: "#article",
     data: {
-            cnt: new Md(str).toHtml();
+            cnt: new Md().parse(str).toHtml();
         }
     });
 ```
@@ -56,7 +56,6 @@ new Vue({
 ┃    ┗ md-broswer.js   -- dialects/office.js 的浏览器版本
 ┃
 ┣ src           -- 项目源文件
-┃    ┗ dialects        -- 语法模块配置文件
 ┃
 ┗ test          -- 测试文件
 ```

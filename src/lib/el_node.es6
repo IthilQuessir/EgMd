@@ -60,14 +60,19 @@ class ElNode {
 
     toHTML() {
         var str = "",
-            name = this.tagName;
+            name = this.tagName,
+            attr = "";
 
         for (let child of this.children) {
             str += child.toHTML();
         }
 
+        this.__attr__.forEach(function(key, value) {
+            attr += (" " + key + "=" + "\"" + value + "\"");
+        });
+
         if (name !== "") {
-            str = "<" + name + ">" + str +"</" + name + ">";
+            str = "<" + name + attr + ">" + str + "</" + name + ">";
         }
 
         return str;
