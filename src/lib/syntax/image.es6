@@ -32,7 +32,7 @@ exports.parse = function(s_node) {
     }
 
     container.appendChild(node);
-    console.log(container);
+    
     if (reg.index + reg[0].length < source.length) {
         node = new TxtNode(source.substr(reg.index + reg[0].length), "inline");
         container.appendChild(node);

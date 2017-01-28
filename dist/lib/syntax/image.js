@@ -40,7 +40,7 @@ exports.parse = function (s_node) {
     }
 
     container.appendChild(node);
-    console.log(container);
+
     if (reg.index + reg[0].length < source.length) {
         node = new _txt_node2.default(source.substr(reg.index + reg[0].length), "inline");
         container.appendChild(node);

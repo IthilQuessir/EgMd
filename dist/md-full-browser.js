@@ -1389,7 +1389,8 @@
 	        key: "toHTML",
 	        value: function toHTML() {
 	            var str = "",
-	                name = this.tagName;
+	                name = this.tagName,
+	                attr = "";
 
 	            var _iteratorNormalCompletion2 = true;
 	            var _didIteratorError2 = false;
@@ -1416,8 +1417,12 @@
 	                }
 	            }
 
+	            this.__attr__.forEach(function (key, value) {
+	                attr += " " + key + "=" + "\"" + value + "\"";
+	            });
+
 	            if (name !== "") {
-	                str = "<" + name + ">" + str + "</" + name + ">";
+	                str = "<" + name + attr + ">" + str + "</" + name + ">";
 	            }
 
 	            return str;
@@ -2222,7 +2227,7 @@
 	    }
 
 	    container.appendChild(node);
-	    console.log(container);
+
 	    if (reg.index + reg[0].length < source.length) {
 	        node = new _txt_node2.default(source.substr(reg.index + reg[0].length), "inline");
 	        container.appendChild(node);
