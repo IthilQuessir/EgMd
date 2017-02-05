@@ -466,55 +466,55 @@
 
 	var _dialect2 = _interopRequireDefault(_dialect);
 
-	var _block = __webpack_require__(66);
+	var _block = __webpack_require__(67);
 
 	var _block2 = _interopRequireDefault(_block);
 
-	var _atx_header = __webpack_require__(67);
+	var _atx_header = __webpack_require__(68);
 
 	var _atx_header2 = _interopRequireDefault(_atx_header);
 
-	var _setext_header = __webpack_require__(68);
+	var _setext_header = __webpack_require__(69);
 
 	var _setext_header2 = _interopRequireDefault(_setext_header);
 
-	var _paragraph = __webpack_require__(69);
+	var _paragraph = __webpack_require__(70);
 
 	var _paragraph2 = _interopRequireDefault(_paragraph);
 
-	var _blockquote = __webpack_require__(70);
+	var _blockquote = __webpack_require__(71);
 
 	var _blockquote2 = _interopRequireDefault(_blockquote);
 
-	var _table = __webpack_require__(71);
+	var _table = __webpack_require__(72);
 
 	var _table2 = _interopRequireDefault(_table);
 
-	var _list = __webpack_require__(72);
+	var _list = __webpack_require__(73);
 
 	var _list2 = _interopRequireDefault(_list);
 
-	var _code = __webpack_require__(73);
+	var _code = __webpack_require__(74);
 
 	var _code2 = _interopRequireDefault(_code);
 
-	var _horiz_line = __webpack_require__(74);
+	var _horiz_line = __webpack_require__(75);
 
 	var _horiz_line2 = _interopRequireDefault(_horiz_line);
 
-	var _image = __webpack_require__(75);
+	var _image = __webpack_require__(76);
 
 	var _image2 = _interopRequireDefault(_image);
 
-	var _autolink = __webpack_require__(76);
+	var _autolink = __webpack_require__(77);
 
 	var _autolink2 = _interopRequireDefault(_autolink);
 
-	var _hyperlink = __webpack_require__(77);
+	var _hyperlink = __webpack_require__(78);
 
 	var _hyperlink2 = _interopRequireDefault(_hyperlink);
 
-	var _escaped = __webpack_require__(78);
+	var _escaped = __webpack_require__(79);
 
 	var _escaped2 = _interopRequireDefault(_escaped);
 
@@ -552,7 +552,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -599,10 +599,11 @@
 	                newNode = this.parseNode(child);
 
 	                if (newNode) {
+	                    this.parseNodes(newNode);
 	                    nodes.replaceChild(i, newNode);
+	                } else {
+	                    this.parseNodes(child);
 	                }
-
-	                this.parseNodes(nodes.getChild(i));
 	            }.bind(this));
 
 	            return nodes;
@@ -1299,25 +1300,71 @@
 
 	var _attr2 = _interopRequireDefault(_attr);
 
+	var _template_string = __webpack_require__(65);
+
+	var _template_string2 = _interopRequireDefault(_template_string);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/*jshint esversion: 6 */
+	var increasingNum = 1;
+
+	function getId() {
+	    return increasingNum++;
+	}
+
+	function attrToString() {
+
+	    var str = "";
+
+	    for (var variable in this) {
+	        if (this.hasOwnProperty(variable) && variable !== "toString") {
+	            str += " " + variable + "=" + "\"" + this[variable] + "\"";
+	        }
+	    }
+
+	    return str;
+	}
+
+	var templateLib = {
+	    h2: "<{tagName}><a name='{id}' {attr}>{children}</a></{tagName}>",
+	    default: "<{tagName} {attr}>{children}</{tagName}>"
+	};
 
 	var ElNode = function () {
 	    function ElNode(tag_name, flag) {
 	        (0, _classCallCheck3.default)(this, ElNode);
 
+
+	        // ElNode唯一标识
+	        this.__id__ = getId();
+
 	        this.tagName = tag_name || "";
 	        this.flag = flag || this.tagName;
-	        this.__attr__ = new _attr2.default();
-	        this.children = [];
+	        this.__attr__ = {
+	            toString: attrToString
+	        };
+	        this.__children__ = [];
+
+	        this.__data__ = {
+	            // 字数
+	            wordCount: "0",
+	            // 标签统计
+	            tags: {
+	                "h1": []
+	            }
+
+	        };
 	    }
 
 	    (0, _createClass3.default)(ElNode, [{
 	        key: "attr",
 	        value: function attr(name, val) {
+
 	            if (typeof val === "undefined") {
-	                return this.__attr__.get(name);
+	                return this.__attr__[name] || null;
 	            } else {
-	                this.__attr__.add(name, val);
+	                this.__attr__[name] = val;
 	            }
 
 	            return this;
@@ -1325,48 +1372,75 @@
 	    }, {
 	        key: "rmAttr",
 	        value: function rmAttr(name) {
-	            this.__attr__.rm(name);
+	            delete this.__attr__[name];
 	            return this;
 	        }
 	    }, {
 	        key: "appendChild",
 	        value: function appendChild(child) {
-	            this.children.push(child);
+	            this.__children__.push(child);
 	            return this;
 	        }
 	    }, {
 	        key: "replaceChild",
 	        value: function replaceChild(index, child) {
-	            var old = this.children[index];
-	            this.children.splice(index, 1, child);
+	            var old = this.__children__[index];
+	            this.__children__.splice(index, 1, child);
 	            return old;
+	        }
+	    }, {
+	        key: "forEach",
+	        value: function forEach(cb) {
+	            var children = this.__children__,
+	                i = 0,
+	                len = children.length;
+
+	            for (; i < len; i++) {
+	                cb(i, children[i]);
+	            }
+	        }
+	    }, {
+	        key: "getChild",
+	        value: function getChild(i) {
+	            return this.__children__[i];
 	        }
 	    }, {
 	        key: "toElement",
 	        value: function toElement() {
 
-	            var el = null,
-	                name = this.tagName;
+	            var el = document.createElement("div"),
+	                df = document.createDocumentFragment(),
+	                children,
+	                i,
+	                len;
 
-	            if (name === "") {
-	                el = document.createDocumentFragment();
-	            } else {
-	                el = document.createElement(name);
+	            el.innerHTML = this.toHTML();
+	            children = el.childNodes;
 
-	                this.__attr__.forEach(function (key, value) {
-	                    el.setAttribute(key, value);
-	                });
+	            console.log(children);
+
+	            while (children.length) {
+	                df.appendChild(children[0]);
 	            }
+
+	            return df;
+	        }
+	    }, {
+	        key: "toHTML",
+	        value: function toHTML(template) {
+
+	            var childrenString = "",
+	                currentTemplate;
 
 	            var _iteratorNormalCompletion = true;
 	            var _didIteratorError = false;
 	            var _iteratorError = undefined;
 
 	            try {
-	                for (var _iterator = (0, _getIterator3.default)(this.children), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                for (var _iterator = (0, _getIterator3.default)(this.__children__), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	                    var child = _step.value;
 
-	                    el.appendChild(child.toElement());
+	                    childrenString += child.toHTML();
 	                }
 	            } catch (err) {
 	                _didIteratorError = true;
@@ -1383,70 +1457,57 @@
 	                }
 	            }
 
-	            return el;
-	        }
-	    }, {
-	        key: "toHTML",
-	        value: function toHTML() {
-	            var str = "",
-	                name = this.tagName,
-	                attr = "";
+	            if (this.tagName) {
 
-	            var _iteratorNormalCompletion2 = true;
-	            var _didIteratorError2 = false;
-	            var _iteratorError2 = undefined;
+	                currentTemplate = template || templateLib[this.tagName] || templateLib.default;
 
-	            try {
-	                for (var _iterator2 = (0, _getIterator3.default)(this.children), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                    var child = _step2.value;
+	                return _template_string2.default.render(currentTemplate, {
 
-	                    str += child.toHTML();
-	                }
-	            } catch (err) {
-	                _didIteratorError2 = true;
-	                _iteratorError2 = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
-	                        _iterator2.return();
-	                    }
-	                } finally {
-	                    if (_didIteratorError2) {
-	                        throw _iteratorError2;
-	                    }
-	                }
-	            }
+	                    id: this.__id__,
+	                    tagName: this.tagName,
 
-	            this.__attr__.forEach(function (key, value) {
-	                attr += " " + key + "=" + "\"" + value + "\"";
-	            });
+	                    attr: this.__attr__,
+	                    children: childrenString
 
-	            if (name !== "") {
-	                str = "<" + name + attr + ">" + str + "</" + name + ">";
-	            }
-
-	            return str;
-	        }
-	    }, {
-	        key: "forEach",
-	        value: function forEach(cb) {
-	            var children = this.children,
-	                i = 0,
-	                len = children.length;
-
-	            for (; i < len; i++) {
-	                cb(i, children[i]);
+	                });
+	            } else {
+	                return childrenString;
 	            }
 	        }
+
+	        /**
+	         * 解析为标准 Md语法
+	         *
+	         * 解析器可能将一些错误语法进行纠正。
+	         * 此API可以输出纠正后的Md文本
+	         *
+	         * TODO 对不合理语法进行查找替换，比解析后再输出效率更高。但扩展定制性如何保证？
+	         *     起因于每个人的习惯不一样，需要一个对错误宽容对解析器来解析。一刀切对替换存在弊端。
+	         *     替换可以通过配置，但是这就不允许他人扩展，增加对其他错误宽容对解析语法，必须全部由我来编写。
+	         *     替换方案增加文件体积，但是却并不可能所有人都需要。
+	         *     语法复原规则和解析器紧密相关，如何编写是问题
+	         *
+	         */
+
 	    }, {
-	        key: "getChild",
-	        value: function getChild(i) {
-	            return this.children[i];
-	        }
+	        key: "toStanderMd",
+	        value: function toStanderMd() {}
+
+	        /**
+	         * TODO 如果在解析过程中统计数据
+	         *      会造成多余的增删操作，而且每一个节点增删的操作都会从叶节点冒泡到根节点
+	         *      以便全部清除
+	         *
+	         *      其功能完整实现意义依赖渲染模板
+	         *      因此首先完成渲染模板
+	         */
+
+	    }, {
+	        key: "getTarget",
+	        value: function getTarget(tagName) {}
 	    }]);
 	    return ElNode;
-	}(); /*jshint esversion: 6 */
-
+	}();
 
 	module.exports = ElNode;
 
@@ -1492,6 +1553,11 @@
 	            return this.list[name] || null;
 	        }
 	    }, {
+	        key: "getAll",
+	        value: function getAll() {
+	            return this.list;
+	        }
+	    }, {
 	        key: "forEach",
 	        value: function forEach(cb) {
 	            var list = this.list;
@@ -1507,6 +1573,9 @@
 	        value: function clone() {
 	            // TODO 深复制代码
 	        }
+	    }, {
+	        key: "toString",
+	        value: function toString() {}
 	    }]);
 	    return Attr;
 	}();
@@ -1515,6 +1584,82 @@
 
 /***/ },
 /* 65 */
+/***/ function(module, exports) {
+
+	/*jshint esversion: 6 */
+
+	/**
+	 * 查找context中token所代表的属性
+	 *
+	 * @param {String} token
+	 * @param {Object} context
+	 *
+	 * @return  若 token = "product.id"
+	 *          则返回 context.product.id || null（查找失败）;
+	 */
+	function SearchVariable(token, context) {
+
+	    var variables = token.split('.'),
+	        currentObject = context,
+	        i, len, variable;
+
+
+	    for (i = 0, len = variables.length; i < len; ++i) {
+
+	        variable = variables[i];
+	        currentObject = currentObject[variable];
+	        // 查找失败
+	        if (currentObject === undefined || currentObject === null) {
+	            return null;
+	        }
+
+	    }
+
+
+	    if( typeof currentObject === "object" ) {
+	        return currentObject.toString() || null;
+	    }
+
+	    return currentObject;
+
+	}
+
+	/**
+	 * 简易模板字符串
+	 *
+	 * 1. 仅包含变量替换功能，变量由 {}包含，两侧允许有空格
+	 * 2. 可以使用反斜杠转译{}
+	 * 3. 支持级联变量，如：{ product.id }
+	 *
+	 * @param {String} template 如: "Hello {text}"
+	 * @param {Object} context  如: {text: "World"}
+	 *
+	 * @return {String} 解析结果，如: "Hello World"
+	 *
+	 */
+	function render(template, context) {
+
+	    var tokenReg = /(\\)?\{\s*([^\{\}\s\\]+)\s*(\\)?\}/g;
+
+	    return template.replace(tokenReg, function(word, slash1, token, slash2) {
+
+	        // 若大括号被转译，则不进行解析
+	        if (slash1 || slash2) {
+	            return word.replace('\\', '');
+	        }
+
+	        // 查找对应替换内容
+	        return SearchVariable(token, context) || "";
+
+	    });
+
+	}
+
+	exports.render = render;
+
+
+/***/ },
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1561,7 +1706,7 @@
 	module.exports = TxtNode;
 
 /***/ },
-/* 66 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1570,7 +1715,7 @@
 
 	var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1622,7 +1767,7 @@
 	};
 
 /***/ },
-/* 67 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1631,7 +1776,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1665,7 +1810,7 @@
 	};
 
 /***/ },
-/* 68 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1674,7 +1819,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1713,7 +1858,7 @@
 	};
 
 /***/ },
-/* 69 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1722,7 +1867,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1743,7 +1888,7 @@
 	};
 
 /***/ },
-/* 70 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1752,7 +1897,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1795,7 +1940,7 @@
 	};
 
 /***/ },
-/* 71 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1804,7 +1949,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1913,7 +2058,7 @@
 	};
 
 /***/ },
-/* 72 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1922,7 +2067,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2032,7 +2177,7 @@
 	};
 
 /***/ },
-/* 73 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2041,7 +2186,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2112,7 +2257,7 @@
 	};
 
 /***/ },
-/* 74 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2121,7 +2266,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2182,7 +2327,7 @@
 	};
 
 /***/ },
-/* 75 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2191,7 +2336,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2223,7 +2368,7 @@
 	    node.attr("alt", reg[1]).attr("src", reg[2]);
 
 	    if (reg[4]) {
-	        node.attr("title", "reg[4]");
+	        node.attr("title", reg[4]);
 	    }
 
 	    container.appendChild(node);
@@ -2237,7 +2382,7 @@
 	};
 
 /***/ },
-/* 76 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2246,7 +2391,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2303,7 +2448,7 @@
 	};
 
 /***/ },
-/* 77 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2312,7 +2457,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2324,7 +2469,7 @@
 	    if (s_node.flag !== "inline") return null;
 
 	    var source = s_node.text,
-	        pattern = /\[\s*(\S*)\s*\]\(\s*(\S*)\s*(?:(["'])(\S*)\3)?\)/,
+	        pattern = /\[\s*([^\]\[]*)\s*\]\(\s*(\S*)\s*(?:(["'])(\S*)\3)?\)/,
 	        reg = source.match(pattern),
 	        node = null,
 	        container = null;
@@ -2358,7 +2503,7 @@
 	};
 
 /***/ },
-/* 78 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2367,7 +2512,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(65);
+	var _txt_node = __webpack_require__(66);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 

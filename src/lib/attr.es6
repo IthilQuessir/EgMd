@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 
 class Attr {
+
     constructor() {
         this.list = {};
     }
@@ -14,23 +15,33 @@ class Attr {
         return this;
     }
 
-    get (name) {
+    get(name) {
         return this.list[name] || null;
     }
 
-    forEach (cb) {
+    getAll() {
+        return this.list;
+    }
+
+    forEach(cb) {
         var list = this.list;
 
         for (let key in list) {
-            if(list.hasOwnProperty(key)) {
+            if (list.hasOwnProperty(key)) {
                 cb.call(this, key, list[key]);
             }
         }
     }
 
-    clone () {
+    clone() {
         // TODO 深复制代码
     }
+
+    toString() {
+
+    }
+
+
 }
 
 module.exports = Attr;

@@ -7,5 +7,5 @@ var tree = md.parse(str);
 // console.log("Tree", tree);
 console.log("HTML", tree.toHTML());
 var dateEnd = new Date().getTime();
-container.append(md.parse(str).toElement());
-// alert("TIME:" + dateStar + ";" +  dateEnd + ";" + (dateEnd - dateStar));
+container.append(tree.toElement());
+console.log("TIME:" + dateStar + ";" +  dateEnd + ";" + (dateEnd - dateStar));

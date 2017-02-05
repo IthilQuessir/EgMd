@@ -39,10 +39,11 @@ class Dialect {
             newNode = this.parseNode(child);
 
             if (newNode) {
+                this.parseNodes(newNode);
                 nodes.replaceChild(i, newNode);
+            } else {
+                this.parseNodes(child);
             }
-
-            this.parseNodes(nodes.getChild(i));
 
         }.bind(this));
 

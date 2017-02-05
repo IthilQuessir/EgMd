@@ -26,6 +26,16 @@ var ElNode = function () {
         this.flag = flag || this.tagName;
         this.__attr__ = new _attr2.default();
         this.children = [];
+
+        this.__data__ = {
+            // 字数
+            wordCount: "0",
+            // 标签统计
+            tags: {
+                "h1": []
+            }
+
+        };
     }
 
     (0, _createClass3.default)(ElNode, [{
@@ -57,6 +67,22 @@ var ElNode = function () {
             var old = this.children[index];
             this.children.splice(index, 1, child);
             return old;
+        }
+    }, {
+        key: "forEach",
+        value: function forEach(cb) {
+            var children = this.children,
+                i = 0,
+                len = children.length;
+
+            for (; i < len; i++) {
+                cb(i, children[i]);
+            }
+        }
+    }, {
+        key: "getChild",
+        value: function getChild(i) {
+            return this.children[i];
         }
     }, {
         key: "toElement",
@@ -144,22 +170,27 @@ var ElNode = function () {
 
             return str;
         }
-    }, {
-        key: "forEach",
-        value: function forEach(cb) {
-            var children = this.children,
-                i = 0,
-                len = children.length;
 
-            for (; i < len; i++) {
-                cb(i, children[i]);
-            }
-        }
+        /**
+         * 解析为标准 Md语法
+         *
+         * 解析器可能将一些错误语法进行纠正。
+         * 此API可以输出纠正后的Md文本
+         *
+         * XXX 对不合理语法进行查找替换，比解析后再输出效率更高。但扩展定制性如何保证？
+         *     起因于每个人的习惯不一样，需要一个对错误宽容对解析器来解析。一刀切对替换存在弊端。
+         *     替换可以通过配置，但是这就不允许他人扩展，增加对其他错误宽容对解析语法，必须全部由我来编写。
+         *     替换方案增加文件体积，但是却并不可能所有人都需要。
+         *     语法复原规则和解析器紧密相关，如何编写是问题
+         *
+         */
+
     }, {
-        key: "getChild",
-        value: function getChild(i) {
-            return this.children[i];
-        }
+        key: "toStanderMd",
+        value: function toStanderMd() {}
+    }, {
+        key: "getTarget",
+        value: function getTarget(tagName) {}
     }]);
     return ElNode;
 }(); /*jshint esversion: 6 */

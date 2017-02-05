@@ -63,10 +63,11 @@ var Dialect = function () {
                 newNode = this.parseNode(child);
 
                 if (newNode) {
+                    this.parseNodes(newNode);
                     nodes.replaceChild(i, newNode);
+                } else {
+                    this.parseNodes(child);
                 }
-
-                this.parseNodes(nodes.getChild(i));
             }.bind(this));
 
             return nodes;
