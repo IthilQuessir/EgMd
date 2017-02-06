@@ -36,7 +36,7 @@ exports.parse = function (s_node) {
     node.attr("alt", reg[1]).attr("src", reg[2]);
 
     if (reg[4]) {
-        node.attr("title", "reg[4]");
+        node.attr("title", reg[4]);
     }
 
     container.appendChild(node);

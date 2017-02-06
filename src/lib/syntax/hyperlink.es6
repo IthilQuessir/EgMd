@@ -7,7 +7,7 @@ exports.parse = function(s_node) {
     if (s_node.flag !== "inline") return null;
 
     var source = s_node.text,
-        pattern = /\[\s*(\S*)\s*\]\(\s*(\S*)\s*(?:(["'])(\S*)\3)?\)/,
+        pattern = /\[\s*([^\]\[]*)\s*\]\(\s*(\S*)\s*(?:(["'])(\S*)\3)?\)/,
         reg = source.match(pattern),
         node = null,
         container = null;
@@ -22,8 +22,6 @@ exports.parse = function(s_node) {
 
         node = new TxtNode(source.substring(0, reg.index));
         container.appendChild(node);
-
-
 
     }
 

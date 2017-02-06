@@ -4,6 +4,7 @@ import TxtNode from "./txt_node";
 
 
 class Dialect {
+
     constructor(name, syntaxs) {
         if (syntaxs.length === 0) {
             throw new Error("[Dialect mast init with a syntaxs arr]");
@@ -39,10 +40,11 @@ class Dialect {
             newNode = this.parseNode(child);
 
             if (newNode) {
+                this.parseNodes(newNode);
                 nodes.replaceChild(i, newNode);
+            } else {
+                this.parseNodes(child);
             }
-
-            this.parseNodes(nodes.getChild(i));
 
         }.bind(this));
 
@@ -88,7 +90,6 @@ class Dialect {
 
         return null;
     }
-
 
 }
 
