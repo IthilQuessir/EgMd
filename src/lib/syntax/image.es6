@@ -28,11 +28,11 @@ exports.parse = function(s_node) {
         .attr("src", reg[2]);
 
     if (reg[4]) {
-        node.attr("title", "reg[4]");
+        node.attr("title", reg[4]);
     }
 
     container.appendChild(node);
-    
+
     if (reg.index + reg[0].length < source.length) {
         node = new TxtNode(source.substr(reg.index + reg[0].length), "inline");
         container.appendChild(node);
