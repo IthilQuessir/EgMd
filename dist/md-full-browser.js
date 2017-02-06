@@ -466,55 +466,55 @@
 
 	var _dialect2 = _interopRequireDefault(_dialect);
 
-	var _block = __webpack_require__(67);
+	var _block = __webpack_require__(66);
 
 	var _block2 = _interopRequireDefault(_block);
 
-	var _atx_header = __webpack_require__(68);
+	var _atx_header = __webpack_require__(67);
 
 	var _atx_header2 = _interopRequireDefault(_atx_header);
 
-	var _setext_header = __webpack_require__(69);
+	var _setext_header = __webpack_require__(68);
 
 	var _setext_header2 = _interopRequireDefault(_setext_header);
 
-	var _paragraph = __webpack_require__(70);
+	var _paragraph = __webpack_require__(69);
 
 	var _paragraph2 = _interopRequireDefault(_paragraph);
 
-	var _blockquote = __webpack_require__(71);
+	var _blockquote = __webpack_require__(70);
 
 	var _blockquote2 = _interopRequireDefault(_blockquote);
 
-	var _table = __webpack_require__(72);
+	var _table = __webpack_require__(71);
 
 	var _table2 = _interopRequireDefault(_table);
 
-	var _list = __webpack_require__(73);
+	var _list = __webpack_require__(72);
 
 	var _list2 = _interopRequireDefault(_list);
 
-	var _code = __webpack_require__(74);
+	var _code = __webpack_require__(73);
 
 	var _code2 = _interopRequireDefault(_code);
 
-	var _horiz_line = __webpack_require__(75);
+	var _horiz_line = __webpack_require__(74);
 
 	var _horiz_line2 = _interopRequireDefault(_horiz_line);
 
-	var _image = __webpack_require__(76);
+	var _image = __webpack_require__(75);
 
 	var _image2 = _interopRequireDefault(_image);
 
-	var _autolink = __webpack_require__(77);
+	var _autolink = __webpack_require__(76);
 
 	var _autolink2 = _interopRequireDefault(_autolink);
 
-	var _hyperlink = __webpack_require__(78);
+	var _hyperlink = __webpack_require__(77);
 
 	var _hyperlink2 = _interopRequireDefault(_hyperlink);
 
-	var _escaped = __webpack_require__(79);
+	var _escaped = __webpack_require__(78);
 
 	var _escaped2 = _interopRequireDefault(_escaped);
 
@@ -552,7 +552,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1296,18 +1296,14 @@
 
 	var _createClass3 = _interopRequireDefault(_createClass2);
 
-	var _attr = __webpack_require__(64);
-
-	var _attr2 = _interopRequireDefault(_attr);
-
-	var _template_string = __webpack_require__(65);
+	var _template_string = __webpack_require__(64);
 
 	var _template_string2 = _interopRequireDefault(_template_string);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	/*jshint esversion: 6 */
-	var increasingNum = 1;
+	var increasingNum = 1; /*jshint esversion: 6 */
+
 
 	function getId() {
 	    return increasingNum++;
@@ -1327,7 +1323,7 @@
 	}
 
 	var templateLib = {
-	    h2: "<{tagName}><a name='{id}' {attr}>{children}</a></{tagName}>",
+	    h2: "<{tagName} {attr}><a name='{id}'>{children}</a></{tagName}>",
 	    default: "<{tagName} {attr}>{children}</{tagName}>"
 	};
 
@@ -1339,22 +1335,12 @@
 	        // ElNode唯一标识
 	        this.__id__ = getId();
 
-	        this.tagName = tag_name || "";
-	        this.flag = flag || this.tagName;
+	        this.tagName = tag_name ? tag_name.toLowerCase() : "";
+	        this.flag = flag ? flag.toLowerCase() : this.tagName;
 	        this.__attr__ = {
 	            toString: attrToString
 	        };
 	        this.__children__ = [];
-
-	        this.__data__ = {
-	            // 字数
-	            wordCount: "0",
-	            // 标签统计
-	            tags: {
-	                "h1": []
-	            }
-
-	        };
 	    }
 
 	    (0, _createClass3.default)(ElNode, [{
@@ -1406,7 +1392,7 @@
 	        }
 	    }, {
 	        key: "toElement",
-	        value: function toElement() {
+	        value: function toElement(template) {
 
 	            var el = document.createElement("div"),
 	                df = document.createDocumentFragment(),
@@ -1414,15 +1400,12 @@
 	                i,
 	                len;
 
-	            el.innerHTML = this.toHTML();
+	            el.innerHTML = this.toHTML(template);
 	            children = el.childNodes;
-
-	            console.log(children);
 
 	            while (children.length) {
 	                df.appendChild(children[0]);
 	            }
-
 	            return df;
 	        }
 	    }, {
@@ -1431,6 +1414,8 @@
 
 	            var childrenString = "",
 	                currentTemplate;
+
+	            template = template || {};
 
 	            var _iteratorNormalCompletion = true;
 	            var _didIteratorError = false;
@@ -1459,7 +1444,7 @@
 
 	            if (this.tagName) {
 
-	                currentTemplate = template || templateLib[this.tagName] || templateLib.default;
+	                currentTemplate = template[this.tagName] || templateLib[this.tagName] || templateLib.default;
 
 	                return _template_string2.default.render(currentTemplate, {
 
@@ -1494,17 +1479,63 @@
 	        value: function toStanderMd() {}
 
 	        /**
-	         * TODO 如果在解析过程中统计数据
+	         * XXX  如果在解析过程中统计数据
 	         *      会造成多余的增删操作，而且每一个节点增删的操作都会从叶节点冒泡到根节点
 	         *      以便全部清除
 	         *
 	         *      其功能完整实现意义依赖渲染模板
 	         *      因此首先完成渲染模板
+	         *
+	         * @param {String} tagName 标签名
 	         */
 
 	    }, {
-	        key: "getTarget",
-	        value: function getTarget(tagName) {}
+	        key: "getNodes",
+	        value: function getNodes(tagName) {
+
+	            var children = this.__children__,
+	                nodes = [],
+	                rs,
+	                i,
+	                len,
+	                child,
+	                childChildren;
+
+	            if (typeof tagName !== "string") {
+	                throw new Error("[Md getNodes] param mast be string");
+	            }
+
+	            tagName = tagName.toLowerCase();
+
+	            for (i = 0, len = children.length; i < len; i++) {
+
+	                child = children[i];
+
+	                if (child.tagName === tagName) {
+	                    nodes.push(child);
+	                }
+
+	                if (child.getNodes) {
+	                    childChildren = child.getNodes(tagName);
+	                }
+
+	                if (childChildren) {
+	                    nodes.push(childChildren);
+	                }
+
+	                childChildren = null;
+	            }
+
+	            if (nodes.length === 0) {
+	                return null;
+	            } else if (nodes.length === 1) {
+	                return nodes[0];
+	            } else {
+	                rs = new ElNode();
+	                rs.__children__ = nodes;
+	                return rs;
+	            }
+	        }
 	    }]);
 	    return ElNode;
 	}();
@@ -1513,77 +1544,6 @@
 
 /***/ },
 /* 64 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _classCallCheck2 = __webpack_require__(3);
-
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-	var _createClass2 = __webpack_require__(4);
-
-	var _createClass3 = _interopRequireDefault(_createClass2);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	/*jshint esversion: 6 */
-
-	var Attr = function () {
-	    function Attr() {
-	        (0, _classCallCheck3.default)(this, Attr);
-
-	        this.list = {};
-	    }
-
-	    (0, _createClass3.default)(Attr, [{
-	        key: "add",
-	        value: function add(name, val) {
-	            this.list[name] = val;
-	        }
-	    }, {
-	        key: "rm",
-	        value: function rm(name) {
-	            delete this.list[name];
-	            return this;
-	        }
-	    }, {
-	        key: "get",
-	        value: function get(name) {
-	            return this.list[name] || null;
-	        }
-	    }, {
-	        key: "getAll",
-	        value: function getAll() {
-	            return this.list;
-	        }
-	    }, {
-	        key: "forEach",
-	        value: function forEach(cb) {
-	            var list = this.list;
-
-	            for (var key in list) {
-	                if (list.hasOwnProperty(key)) {
-	                    cb.call(this, key, list[key]);
-	                }
-	            }
-	        }
-	    }, {
-	        key: "clone",
-	        value: function clone() {
-	            // TODO 深复制代码
-	        }
-	    }, {
-	        key: "toString",
-	        value: function toString() {}
-	    }]);
-	    return Attr;
-	}();
-
-	module.exports = Attr;
-
-/***/ },
-/* 65 */
 /***/ function(module, exports) {
 
 	/*jshint esversion: 6 */
@@ -1659,7 +1619,7 @@
 
 
 /***/ },
-/* 66 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1706,7 +1666,7 @@
 	module.exports = TxtNode;
 
 /***/ },
-/* 67 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1715,7 +1675,7 @@
 
 	var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1767,7 +1727,7 @@
 	};
 
 /***/ },
-/* 68 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1776,7 +1736,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1810,7 +1770,7 @@
 	};
 
 /***/ },
-/* 69 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1819,7 +1779,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1858,7 +1818,7 @@
 	};
 
 /***/ },
-/* 70 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1867,7 +1827,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1888,7 +1848,7 @@
 	};
 
 /***/ },
-/* 71 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1897,7 +1857,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -1940,7 +1900,7 @@
 	};
 
 /***/ },
-/* 72 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1949,7 +1909,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2058,7 +2018,7 @@
 	};
 
 /***/ },
-/* 73 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2067,7 +2027,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2177,7 +2137,7 @@
 	};
 
 /***/ },
-/* 74 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2186,7 +2146,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2257,7 +2217,7 @@
 	};
 
 /***/ },
-/* 75 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2266,7 +2226,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2327,7 +2287,7 @@
 	};
 
 /***/ },
-/* 76 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2336,7 +2296,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2382,7 +2342,7 @@
 	};
 
 /***/ },
-/* 77 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2391,7 +2351,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2448,7 +2408,7 @@
 	};
 
 /***/ },
-/* 78 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2457,7 +2417,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 
@@ -2503,7 +2463,7 @@
 	};
 
 /***/ },
-/* 79 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2512,7 +2472,7 @@
 
 	var _el_node2 = _interopRequireDefault(_el_node);
 
-	var _txt_node = __webpack_require__(66);
+	var _txt_node = __webpack_require__(65);
 
 	var _txt_node2 = _interopRequireDefault(_txt_node);
 

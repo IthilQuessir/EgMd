@@ -1,5 +1,4 @@
 /*jshint esversion: 6 */
-import Attr from "./attr";
 import templateString from "./template_string";
 
 var increasingNum = 1;
@@ -22,7 +21,7 @@ function attrToString() {
 }
 
 var templateLib = {
-    h2: "<{tagName}><a name='{id}' {attr}>{children}</a></{tagName}>",
+    h2: "<{tagName} {attr}><a name='{id}'>{children}</a></{tagName}>",
     default: "<{tagName} {attr}>{children}</{tagName}>"
 };
 
@@ -33,22 +32,12 @@ class ElNode {
         // ElNode唯一标识
         this.__id__ = getId();
 
-        this.tagName = tag_name || "";
-        this.flag = flag || this.tagName;
+        this.tagName = tag_name ? tag_name.toLowerCase() : "";
+        this.flag = flag ? flag.toLowerCase() : this.tagName;
         this.__attr__ = {
             toString: attrToString
         };
         this.__children__ = [];
-
-        this.__data__ = {
-            // 字数
-            wordCount: "0",
-            // 标签统计
-            tags: {
-                "h1": []
-            },
-
-        };
 
     }
 
@@ -94,22 +83,18 @@ class ElNode {
         return this.__children__[i];
     }
 
-    toElement() {
-
+    toElement(template) {
 
         var el = document.createElement("div"),
             df = document.createDocumentFragment(),
             children, i, len;
 
-        el.innerHTML = this.toHTML();
+        el.innerHTML = this.toHTML(template);
         children = el.childNodes;
 
-        console.log(children);
-
-        while(children.length) {
+        while (children.length) {
             df.appendChild(children[0]);
-        }
-        　　
+        }　
         return df;
 
     }
@@ -119,13 +104,17 @@ class ElNode {
         var childrenString = "",
             currentTemplate;
 
+        template = template || {};
+
         for (let child of this.__children__) {
             childrenString += child.toHTML();
         }
 
         if (this.tagName) {
 
-            currentTemplate = template || templateLib[this.tagName] || templateLib.default;
+            currentTemplate = template[this.tagName] ||
+                templateLib[this.tagName] ||
+                templateLib.default;
 
             return templateString.render(currentTemplate, {
 
@@ -143,7 +132,6 @@ class ElNode {
 
     }
 
-
     /**
      * 解析为标准 Md语法
      *
@@ -160,14 +148,59 @@ class ElNode {
     toStanderMd() {}
 
     /**
-     * TODO 如果在解析过程中统计数据
+     * XXX  如果在解析过程中统计数据
      *      会造成多余的增删操作，而且每一个节点增删的操作都会从叶节点冒泡到根节点
      *      以便全部清除
      *
      *      其功能完整实现意义依赖渲染模板
      *      因此首先完成渲染模板
+     *
+     * @param {String} tagName 标签名
      */
-    getTarget(tagName) {}
+    getNodes(tagName) {
+
+        var children = this.__children__,
+            nodes = [],
+            rs, i, len, child, childChildren;
+
+        if(typeof tagName !== "string") {
+            throw new Error("[Md getNodes] param mast be string");
+        }
+
+        tagName = tagName.toLowerCase();
+
+        for (i = 0, len = children.length; i < len; i++) {
+
+            child = children[i];
+
+            if (child.tagName === tagName) {
+                nodes.push(child);
+            }
+
+            if (child.getNodes) {
+                childChildren = child.getNodes(tagName);
+            }
+
+            if (childChildren) {
+                nodes.push(childChildren);
+            }
+
+            childChildren = null;
+        }
+
+        if (nodes.length === 0) {
+            return null;
+
+
+        } else if (nodes.length === 1) {
+            return nodes[0];
+        } else {
+            rs = new ElNode();
+            rs.__children__ = nodes;
+            return rs;
+        }
+
+    }
 
 }
 

@@ -4,6 +4,7 @@ import TxtNode from "./txt_node";
 
 
 class Dialect {
+
     constructor(name, syntaxs) {
         if (syntaxs.length === 0) {
             throw new Error("[Dialect mast init with a syntaxs arr]");
@@ -89,7 +90,6 @@ class Dialect {
 
         return null;
     }
-
 
 }
 
